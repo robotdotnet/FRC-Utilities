@@ -18,6 +18,8 @@ namespace NativeLibraryUtilities
         private bool m_internalExtraction;
         private string m_extractLocation;
 
+        public string LibraryLocation { get; private set; }
+
         public NativeLibraryLoader(bool internalExtraction)
         {
             m_internalExtraction = internalExtraction;
@@ -36,20 +38,61 @@ namespace NativeLibraryUtilities
             m_nativeLibraryName.Add(osType, libraryName);
         }
 
-        public void LoadNativeLibary(ILibraryLoader loader, string location)
+        public void LoadNativeLibrary(ILibraryLoader loader, string location)
         {
             if (m_internalExtraction)
             {
                 ExtractNativeLibrary(location);
                 LibraryLoader = loader;
                 LibraryHandle = loader.LoadLibrary(m_extractLocation);
+                LibraryLocation = m_extractLocation;
             }
             else
             {
                 // Otherwise directly load.
                 LibraryLoader = loader;
                 LibraryHandle = loader.LoadLibrary(location);
+                LibraryLocation = location;
             }
+        }
+
+        public void LoadNativeLibrary(string location)
+        {
+            if (OsType == OsType.None)
+                throw new InvalidOperationException(
+                    "OS type is unknown. Must use the overload to manually load the file");
+
+            if (!m_nativeLibraryName.ContainsKey(OsType))
+                throw new InvalidOperationException("OS Type not contained in dictionary");
+
+            switch (OsType)
+            {
+                case OsType.Windows32:
+                case OsType.Windows64:
+                    LibraryLoader = new WindowsLibraryLoader();
+                    break;
+                case OsType.Linux32:
+                case OsType.Linux64:
+                    LibraryLoader = new LinuxLibraryLoader();
+                    break;
+                case OsType.MacOs32:
+                case OsType.MacOs64:
+                    LibraryLoader = new LinuxLibraryLoader();
+                    break;
+            }
+
+            if (m_internalExtraction)
+            {
+                ExtractNativeLibrary(location);
+                LibraryHandle = LibraryLoader.LoadLibrary(m_extractLocation);
+                LibraryLocation = m_extractLocation;
+            }
+            else
+            {
+                LibraryHandle = LibraryLoader.LoadLibrary(location);
+                LibraryLocation = location;
+            }
+
         }
 
         public void LoadNativeLibrary()
@@ -81,10 +124,12 @@ namespace NativeLibraryUtilities
             {
                 ExtractNativeLibrary(m_nativeLibraryName[OsType]);
                 LibraryHandle = LibraryLoader.LoadLibrary(m_extractLocation);
+                LibraryLocation = m_extractLocation;
             }
             else
             {
                 LibraryHandle = LibraryLoader.LoadLibrary(m_nativeLibraryName[OsType]);
+                LibraryLocation = m_nativeLibraryName[OsType];
             }
  
         }
