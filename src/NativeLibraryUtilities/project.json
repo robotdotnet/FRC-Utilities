@@ -1,0 +1,60 @@
+﻿{
+  "version": "1.0.0-beta-*",
+
+  "title": "Native Library Utilities",
+  "description": "Utility library for interfacing with native libraries.",
+  "copyright": "Copyright 2016 RobotDotNet",
+  "authors": [
+    "RobotDotNet"
+  ],
+  "packOptions": {
+    "owners": [
+      "RobotDotNet"
+    ],
+    "authors": [
+      "RobotDotNet"
+    ],
+    "id": "NativeLibraryUtilities",
+    "tags": [ "Native", "Library", "Delegates" ],
+    "title": "Native Library Utilities",
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/robotdotnet/NativeLibraryUtilities",
+    "summary": "Utility library for interfacing with native libraries.",
+    "licenseUrl": "https://github.com/robotdotnet/NativeLibraryUtilities/blob/master/LICENSE.txt",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/robotdotnet/NativeLibraryUtilities"
+    }
+  },
+  "buildOptions": {
+    "xmlDoc": true
+  },
+  "frameworks": {
+    "net451": {},
+    "netstandard1.5": {
+      "buildOptions": {
+        "define": [ "NETSTANDARD" ]
+      },
+      "dependencies": {
+        "System.Collections": "4.0.11",
+        "System.Collections.Concurrent": "4.0.12",
+        "System.Console": "4.0.0",
+        "System.Linq": "4.1.0",
+        "System.Runtime": "4.1.0",
+        "System.Runtime.Extensions": "4.1.0",
+        "System.IO.FileSystem": "4.0.1",
+        "System.Threading": "4.0.11",
+        "System.Runtime.InteropServices": "4.1.0",
+        "System.Runtime.InteropServices.RuntimeInformation": "4.0.0",
+        "System.Reflection.Extensions": "4.0.1",
+        "System.Net.Primitives": "4.0.11",
+        "System.Reflection.TypeExtensions": "4.1.0"
+      }
+    }
+  },
+  "configurations": {
+    "Debug": {
+      "define": [ "DEBUG" ]
+    }
+  }
+}

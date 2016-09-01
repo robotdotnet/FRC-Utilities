@@ -1,0 +1,29 @@
+version: '{branch} {build}'
+pull_requests:
+  do_not_increment_build_number: true
+skip_branch_with_pr: true
+branches:  		
+  only:		
+  - master
+nuget:
+  disable_publish_on_pr: true
+build_script:
+- ps: ./netcore.ps1 -build
+test_script:
+- ps: >-
+
+    ./netcore.ps1 -test
+    
+    If (($env:APPVEYOR_REPO_BRANCH -eq "master") -and (!$env:APPVEYOR_PULL_REQUEST_NUMBER)) {
+
+    .\netcore.ps1 -updatexml -pack 
+
+
+    }
+deploy:
+- provider: NuGet
+  api_key:
+    secure: f4XB8xaNhhhgmXZrsv5Yh+JjxgnAXOfBJtbUgPB623n4Z2t/gXcC7fCUg36DK69k
+  on:
+    branch: master
+    appveyor_repo_tag: true
