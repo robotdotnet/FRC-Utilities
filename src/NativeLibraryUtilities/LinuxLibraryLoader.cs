@@ -1,26 +1,40 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace NativeLibraryUtilities
 {
+    /// <summary>
+    /// This class handles native libraries on Linux
+    /// </summary>
     public class LinuxLibraryLoader : ILibraryLoader
     {
-        IntPtr ILibraryLoader.LoadLibrary(string filename)
+        /// <inheritdoc/>
+        public IntPtr NativeLibraryHandle { get; private set; } = IntPtr.Zero;
+
+        /// <inheritdoc/>
+        void ILibraryLoader.LoadLibrary(string filename)
         {
+            if (!File.Exists(filename))
+                throw new FileNotFoundException("The file requested to be loaded could not be found");
             IntPtr dl = dlopen(filename, 2);
-            if (dl != IntPtr.Zero) return dl;
+            if (dl != IntPtr.Zero)
+            {
+                NativeLibraryHandle = dl;
+                return;
+            };
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {
                 throw new DllNotFoundException($"Library Could not be opened: {Marshal.PtrToStringAnsi(err)}");
             }
-            return dl;
         }
 
-        IntPtr ILibraryLoader.GetProcAddress(IntPtr dllHandle, string name)
+        /// <inheritdoc/>
+        IntPtr ILibraryLoader.GetProcAddress(string name)
         {
             dlerror();
-            IntPtr result = dlsym(dllHandle, name);
+            IntPtr result = dlsym(NativeLibraryHandle, name);
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {
@@ -29,9 +43,10 @@ namespace NativeLibraryUtilities
             return result;
         }
 
-        void ILibraryLoader.UnloadLibrary(IntPtr handle)
+        /// <inheritdoc/>
+        void ILibraryLoader.UnloadLibrary()
         {
-            dlclose(handle);
+            dlclose(NativeLibraryHandle);
         }
 
         [DllImport("dl")]

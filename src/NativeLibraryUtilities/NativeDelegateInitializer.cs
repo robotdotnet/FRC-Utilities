@@ -15,7 +15,7 @@ namespace NativeLibraryUtilities
         /// </summary>
         /// <typeparam name="T">The type to setup the native delegates in</typeparam>
         /// <param name="library">The object containing the native library to load from</param>
-        public static void SetupNativeDelegates<T>(ILibraryHolder library)
+        public static void SetupNativeDelegates<T>(ILibraryInformation library)
         {
             TypeInfo info = typeof(T).GetTypeInfo();
 #if NETSTANDARD
@@ -30,9 +30,9 @@ namespace NativeLibraryUtilities
                 string nativeName = attribute.NativeName ?? field.Name;
 #if NETSTANDARD
                 MethodInfo delegateGetter = getDelegateForFunctionPointer.MakeGenericMethod(field.FieldType);
-                object setVal = delegateGetter.Invoke(null, new object[] { library.LibraryLoader.GetProcAddress(library.LibraryHandle, nativeName) });
+                object setVal = delegateGetter.Invoke(null, new object[] { library.LibraryLoader.GetProcAddress(nativeName) });
 #else
-                object setVal = Marshal.GetDelegateForFunctionPointer(library.LibraryLoader.GetProcAddress(library.LibraryHandle, nativeName),
+                object setVal = Marshal.GetDelegateForFunctionPointer(library.LibraryLoader.GetProcAddress(nativeName),
                     field.FieldType);
 #endif
                 field.SetValue(null, setVal);

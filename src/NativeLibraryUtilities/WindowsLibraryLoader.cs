@@ -1,18 +1,27 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace NativeLibraryUtilities
 {
+    /// <summary>
+    /// This class handles native libraries on Windows
+    /// </summary>
     public class WindowsLibraryLoader : ILibraryLoader
     {
-        IntPtr ILibraryLoader.LoadLibrary(string filename)
+        /// <inheritdoc/>
+        public IntPtr NativeLibraryHandle { get; private set; } = IntPtr.Zero;
+
+        void ILibraryLoader.LoadLibrary(string filename)
         {
-            return LoadLibrary(filename);
+            if (!File.Exists(filename))
+                throw new FileNotFoundException("The file requested to be loaded could not be found");
+            NativeLibraryHandle = LoadLibrary(filename);
         }
 
-        IntPtr ILibraryLoader.GetProcAddress(IntPtr dllHandle, string name)
+        IntPtr ILibraryLoader.GetProcAddress(string name)
         {
-            IntPtr addr = GetProcAddress(dllHandle, name);
+            IntPtr addr = GetProcAddress(NativeLibraryHandle, name);
             if (addr == IntPtr.Zero)
             {
                 //Address not found. Throw Exception
@@ -21,9 +30,9 @@ namespace NativeLibraryUtilities
             return addr;
         }
 
-        void ILibraryLoader.UnloadLibrary(IntPtr handle)
+        void ILibraryLoader.UnloadLibrary()
         {
-            FreeLibrary(handle);
+            FreeLibrary(NativeLibraryHandle);
         }
 
         [DllImport("kernel32")]
