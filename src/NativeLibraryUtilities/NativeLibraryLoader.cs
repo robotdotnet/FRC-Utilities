@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace NativeLibraryUtilities
 {
-    public class NativeLibraryLoader<T> : ILibraryHolder
+    public class NativeLibraryLoader : ILibraryHolder
     {
         private readonly Dictionary<OsType, string> m_nativeLibraryName = new Dictionary<OsType, string>();
 
@@ -38,11 +38,11 @@ namespace NativeLibraryUtilities
             m_nativeLibraryName.Add(osType, libraryName);
         }
 
-        public void LoadNativeLibrary(ILibraryLoader loader, string location)
+        public void LoadNativeLibrary<T>(ILibraryLoader loader, string location)
         {
             if (m_internalExtraction)
             {
-                ExtractNativeLibrary(location);
+                ExtractNativeLibrary<T>(location);
                 LibraryLoader = loader;
                 LibraryHandle = loader.LoadLibrary(m_extractLocation);
                 LibraryLocation = m_extractLocation;
@@ -56,7 +56,7 @@ namespace NativeLibraryUtilities
             }
         }
 
-        public void LoadNativeLibrary(string location)
+        public void LoadNativeLibrary<T>(string location)
         {
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
@@ -83,7 +83,7 @@ namespace NativeLibraryUtilities
 
             if (m_internalExtraction)
             {
-                ExtractNativeLibrary(location);
+                ExtractNativeLibrary<T>(location);
                 LibraryHandle = LibraryLoader.LoadLibrary(m_extractLocation);
                 LibraryLocation = m_extractLocation;
             }
@@ -95,7 +95,7 @@ namespace NativeLibraryUtilities
 
         }
 
-        public void LoadNativeLibrary()
+        public void LoadNativeLibrary<T>()
         {
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
@@ -122,7 +122,7 @@ namespace NativeLibraryUtilities
 
             if (m_internalExtraction)
             {
-                ExtractNativeLibrary(m_nativeLibraryName[OsType]);
+                ExtractNativeLibrary<T>(m_nativeLibraryName[OsType]);
                 LibraryHandle = LibraryLoader.LoadLibrary(m_extractLocation);
                 LibraryLocation = m_extractLocation;
             }
@@ -134,7 +134,7 @@ namespace NativeLibraryUtilities
  
         }
 
-        private void ExtractNativeLibrary(string location)
+        private void ExtractNativeLibrary<T>(string location)
         {
             byte[] bytes;
             //Load our resource file into memory
