@@ -20,7 +20,7 @@ fi
 function Build {
   dotnet restore
 
-  dotnet build ./src/NativeLibaryUtilities $configuration
+  dotnet build ./src/NativeLibraryUtilities $configuration
 }
 
 Build
