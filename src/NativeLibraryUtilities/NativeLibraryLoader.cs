@@ -163,7 +163,7 @@ namespace NativeLibraryUtilities
 #endif
         }
 
-        private static OsType GetOsType()
+        public static OsType GetOsType()
         {
             if (IsWindows())
             {
