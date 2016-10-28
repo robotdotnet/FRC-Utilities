@@ -33,6 +33,7 @@ namespace NativeLibraryUtilities
 
         public bool Equals(Utsname value)
         {
+            if (value == null) return false;
             return value.sysname == sysname && value.nodename == nodename &&
                 value.release == release && value.version == version &&
                 value.machine == machine && value.domainname == domainname;

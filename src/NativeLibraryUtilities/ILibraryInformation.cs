@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NativeLibraryUtilities
+﻿namespace NativeLibraryUtilities
 {
     /// <summary>
     /// Interface for getting information about a loaded native library.

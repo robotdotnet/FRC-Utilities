@@ -21,7 +21,7 @@ namespace NativeLibraryUtilities
             {
                 NativeLibraryHandle = dl;
                 return;
-            };
+            }
             IntPtr err = dlerror();
             if (err != IntPtr.Zero)
             {

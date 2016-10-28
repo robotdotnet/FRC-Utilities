@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace NativeLibraryUtilities
 {
@@ -88,7 +87,7 @@ namespace NativeLibraryUtilities
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType))
+            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
             switch (OsType)
@@ -122,7 +121,7 @@ namespace NativeLibraryUtilities
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType))
+            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
             switch (OsType)
