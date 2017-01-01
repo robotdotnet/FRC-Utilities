@@ -1,4 +1,4 @@
-version: '{branch} {build}'
+version: '{branch}-{build}'
 pull_requests:
   do_not_increment_build_number: true
 skip_branch_with_pr: true
@@ -11,8 +11,6 @@ build_script:
 - ps: ./netcore.ps1 -build
 test_script:
 - ps: >-
-
-    ./netcore.ps1 -test
     
     If (($env:APPVEYOR_REPO_BRANCH -eq "master") -and (!$env:APPVEYOR_PULL_REQUEST_NUMBER)) {
 

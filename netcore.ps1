@@ -2,11 +2,7 @@
 # http://andrewlock.net/publishing-your-first-nuget-package-with-appveyor-and-myget/
 
 param (
-  [switch]$release = $false,
   [switch]$build = $false,
-  [switch]$test = $false,
-  [switch]$skipNtCore = $false,
-  [switch]$updatexml = $false,
   [switch]$pack = $false,
   [switch]$debug = $false
 )
@@ -62,21 +58,32 @@ function Exec
 }
 
 If (Test-Path Env:APPVEYOR_REPO_TAG_NAME) {
+  $version = ($env:APPVEYOR_REPO_TAG_NAME).Substring(1)
   if (($env:APPVEYOR_REPO_TAG_NAME).Contains("-") -eq $false) {
-     $release = $true
+    #Building a Full Release
+     $type = ""
+     $buildNumber = ""
      echo "Tagged Release"
+    } Else {
+      #Building a Beta
+      $version = ($version).Substring(0, (($env:APPVEYOR_REPO_TAG_NAME).IndexOf("-") - 1))
+      $type = ($env:APPVEYOR_REPO_TAG_NAME).Substring((($env:APPVEYOR_REPO_TAG_NAME).IndexOf("-") + 1))
+      $buildNumber = ""
+      echo "Tag but not release"
     }
-    echo "Tag but not release"
-}
-echo "Not Release"
-
-
-If ($release) {
- $revision =  ""
 } Else {
- $revision = @{ $true = $env:APPVEYOR_BUILD_NUMBER; $false = 1 }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
- $revision = "--version-suffix={0:D4}" -f [convert]::ToInt32($revision, 10)
+  $version = "1.0.0"
+  $type = "ci-"
+  $buildNumber = @{ $true = $env:APPVEYOR_BUILD_NUMBER; $false = 1 }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
+  $buildNumber = "{0:D4}" -f [convert]::ToInt32($buildNumber, 10), $buildNumber
 }
+
+
+echo $version
+echo $type
+echo $buildNumber
+
+$revision = "--version-suffix=" + $type + $buildNumber
 
 If ($debug) {
  $configuration = "-c=Debug"
@@ -107,79 +114,39 @@ function Build {
   echo $configuration
   
   exec { & dotnet build src\NativeLibraryUtilities $configuration $revision }
+
 }
 
 function Pack { 
   if (Test-Path .\artifacts) { Remove-Item .\artifacts -Force -Recurse }
 
   exec { & dotnet pack src\NativeLibraryUtilities $configuration $revision --no-build -o .\artifacts }
-  
 
   if ($env:APPVEYOR) {
     Get-ChildItem .\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   }
 }
 
-function UpdateXml {    
-    # Copy built files
-    if ((Test-Path .\buildTemp) -eq $false) {
-  md .\buildTemp
- }
- 
-  .\NuGet.exe install EWSoftware.SHFB -Version 2016.4.9 -o buildTemp
-
-   .\NuGet.exe install EWSoftware.SHFB.NETFramework -Version 4.6 -o buildTemp
-   
-   Copy-Item src\NativeLibraryUtilities\$libLoc\net451\NativeLibraryUtilities.dll buildTemp\NativeLibraryUtilities.dll
-   Copy-Item src\NativeLibraryUtilities\$libLoc\net451\NativeLibraryUtilities.xml buildTemp\NativeLibraryUtilities.xml
-   
-   EnsurePsbuildInstalled
-   
-   if ($debug) { 
-   $sandConfig = "Debug"
-   } else {
-    $sandConfig = "Release"
-   }
-   
-   & 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe' Sandcastle\NetworkTables.NetCore.shfbproj /property:Configuration=Release /v:m
-
-   Copy-Item Sandcastle\Help\NativeLibraryUtilities.xml src\NativeLibraryUtilities\$libLoc\net451\NativeLibraryUtilities.xml
-   Copy-Item Sandcastle\Help\NativeLibraryUtilities.xml src\NativeLibraryUtilities\$libLoc\netstandard1.3\NativeLibraryUtilities.xml
-}
-
-if ($release) {
  if ((Test-Path .\buildTemp) -eq $false) {
   md .\buildTemp
  }
 
- # Remove beta defintion from project.json files
-  Copy-Item src\NativeLibraryUtilities\project.json buildTemp\NativeLibraryUtilities.projectjson
-  
-  $netTablesJson = Get-Content 'src\NativeLibraryUtilities\project.json' -raw | ConvertFrom-Json
-  $netTablesJson.version = $netTablesJson.version.Substring(0, $netTablesJson.version.IndexOf("-"))
-  $netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\NativeLibraryUtilities\project.json'
- 
-}
+# Remove beta defintion from project.json files
+Copy-Item src\NativeLibraryUtilities\project.json buildTemp\NativeLibraryUtilities.projectjson
+
+$netTablesJson = Get-Content 'src\NativeLibraryUtilities\project.json' -raw | ConvertFrom-Json
+$netTablesJson.version = $version + "-*"
+$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\NativeLibraryUtilities\project.json'
 
 if ($build) {
  Build
-}
-
-if ($test) {
- #Test
-}
-
-if ($updatexml) {
- #UpdateXml
 }
 
 if ($pack) {
  Pack
 }
 
-if ($release) {
- # Add beta definition back into project.json
- Copy-Item buildTemp\NativeLibraryUtilities.projectjson src\NativeLibraryUtilities\project.json
- 
- Remove-Item buildTemp\NativeLibraryUtilities.projectjson
-}
+# Add beta definition back into project.json
+Copy-Item buildTemp\NativeLibraryUtilities.projectjson src\NativeLibraryUtilities\project.json
+
+Remove-Item buildTemp\NativeLibraryUtilities.projectjson
