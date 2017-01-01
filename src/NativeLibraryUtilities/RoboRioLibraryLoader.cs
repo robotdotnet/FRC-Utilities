@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace NativeLibraryUtilities
 {
-    internal class RoboRioLibraryLoader : ILibraryLoader
+    public class RoboRioLibraryLoader : ILibraryLoader
     {
         /// <inheritdoc/>
         public IntPtr NativeLibraryHandle { get; private set; } = IntPtr.Zero;

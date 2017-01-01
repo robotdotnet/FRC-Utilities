@@ -145,7 +145,7 @@ namespace NativeLibraryUtilities
 
         }
 
-        internal void LoadNativeLibraryFromReflectedAssembly(Type asmType)
+        public void LoadNativeLibraryFromReflectedAssembly(Type asmType)
         {
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
