@@ -23,7 +23,7 @@ namespace NativeLibraryUtilities
         /// <inheritdoc/>
         public string LibraryLocation { get; private set; }
 
-        private static bool CheckIsRoboRio()
+        public static bool CheckIsRoboRio()
         {
             return File.Exists("/usr/local/frc/bin/frcRunRobot.sh");
         }
@@ -187,11 +187,11 @@ namespace NativeLibraryUtilities
             Type asmType = null;
             try
             {
-                asmType = asm.GetType("NetworkTables.DesktopLibraries.Natives", true);
+                asmType = asm.GetType(nativeType, true);
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException($"Failed to load desktop assembly type. Please ensure that the {assemblyName} is installed and referenced by your project", e);
+                throw new InvalidOperationException($"Failed to load desktop assembly type {nativeType}. Please ensure that the {assemblyName} is installed and referenced by your project", e);
             }
 
             if (OsType == OsType.None)
