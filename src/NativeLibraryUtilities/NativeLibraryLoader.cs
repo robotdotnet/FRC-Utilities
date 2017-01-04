@@ -23,6 +23,11 @@ namespace NativeLibraryUtilities
         /// <inheritdoc/>
         public string LibraryLocation { get; private set; }
 
+        private static bool CheckIsRoboRio()
+        {
+            return File.Exists("/usr/local/frc/bin/frcRunRobot.sh");
+        }
+
         /// <summary>
         /// Add a file location to be used when automatically searching for a library to load
         /// </summary>
@@ -55,20 +60,20 @@ namespace NativeLibraryUtilities
                 UsingTempFile = true;
             }
 
+            // RoboRIO or Direct Load
+            if (directLoad || CheckIsRoboRio())
+            {
+                LibraryLoader = loader;
+                loader.LoadLibrary(location);
+                LibraryLocation = location;
+            }
+            else
             // If we are loading from extraction, extract then load
-            if (!directLoad)
             {
                 ExtractNativeLibrary(location, extractLocation, typeof(T));
                 LibraryLoader = loader;
                 loader.LoadLibrary(extractLocation);
                 LibraryLocation = extractLocation;
-            }
-            else
-            {
-                // Otherwise directly load.
-                LibraryLoader = loader;
-                loader.LoadLibrary(location);
-                LibraryLocation = location;
             }
         }
 
@@ -84,14 +89,16 @@ namespace NativeLibraryUtilities
             if (location == null)
                 throw new ArgumentNullException(nameof(location), "Library location cannot be null");
 
-            if (OsType == OsType.None)
+            OsType osType = OsType;
+
+            if (osType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
+            if (!m_nativeLibraryName.ContainsKey(osType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
-            switch (OsType)
+            switch (osType)
             {
                 case OsType.Windows32:
                 case OsType.Windows64:
@@ -104,6 +111,11 @@ namespace NativeLibraryUtilities
                 case OsType.MacOs32:
                 case OsType.MacOs64:
                     LibraryLoader = new MacOsLibraryLoader();
+                    break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    LibraryLoader = new EmbeddedLibraryLoader();
                     break;
             }
 
@@ -118,14 +130,16 @@ namespace NativeLibraryUtilities
         /// <param name="extractLocation">The location to extract to if the file is embedded. On null, it extracts to a temp file</param>
         public void LoadNativeLibrary<T>(bool directLoad = false, string extractLocation = null)
         {
-            if (OsType == OsType.None)
+            OsType osType = OsType;
+
+            if (osType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
+            if (!m_nativeLibraryName.ContainsKey(osType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
-            switch (OsType)
+            switch (osType)
             {
                 case OsType.Windows32:
                 case OsType.Windows64:
@@ -139,14 +153,47 @@ namespace NativeLibraryUtilities
                 case OsType.MacOs64:
                     LibraryLoader = new MacOsLibraryLoader();
                     break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    LibraryLoader = new EmbeddedLibraryLoader();
+                    break;
             }
 
-            LoadNativeLibrary<T>(LibraryLoader, m_nativeLibraryName[OsType], directLoad, extractLocation);
-
+            LoadNativeLibrary<T>(LibraryLoader, m_nativeLibraryName[osType], directLoad, extractLocation);
         }
 
-        public void LoadNativeLibraryFromReflectedAssembly(Type asmType)
+        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName, string  nativeType)
         {
+            if (CheckIsRoboRio())
+            {
+                ILibraryLoader loader = new EmbeddedLibraryLoader();
+                LibraryLoader = loader;
+                var location = m_nativeLibraryName[OsType.roboRIO];
+                loader.LoadLibrary(location);
+                LibraryLocation = location;
+            }
+
+            AssemblyName name = new AssemblyName(assemblyName);
+            Assembly asm;
+            try
+            {
+                asm = Assembly.Load(name);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project", e);
+            }
+            Type asmType = null;
+            try
+            {
+                asmType = asm.GetType("NetworkTables.DesktopLibraries.Natives", true);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Failed to load desktop assembly type. Please ensure that the {assemblyName} is installed and referenced by your project", e);
+            }
+
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
@@ -167,6 +214,11 @@ namespace NativeLibraryUtilities
                 case OsType.MacOs32:
                 case OsType.MacOs64:
                     LibraryLoader = new MacOsLibraryLoader();
+                    break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    LibraryLoader = new EmbeddedLibraryLoader();
                     break;
             }
 
@@ -222,6 +274,10 @@ namespace NativeLibraryUtilities
             }
             else
             {
+                if (CheckIsRoboRio())
+                {
+                    return OsType.roboRIO;
+                }
 #if NETSTANDARD
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
@@ -249,10 +305,33 @@ namespace NativeLibraryUtilities
                     return OsType.None;
                 }
 
-
-                Console.WriteLine(uname.ToString());
-
                 bool mac = uname.sysname == "Darwin";
+                bool armv7 = uname.machine.ToLower().Contains("armv7");
+                bool armv6 = uname.machine.ToLower().Contains("armv6");
+
+                if (armv7)
+                {
+                    try
+                    {
+                        string text = File.ReadAllText("/etc/os-release");
+                        if (text.Contains("ID=raspbian"))
+                        {
+                            return OsType.LinuxRaspbian;
+                        }
+                        else
+                        {
+                            return OsType.LinuxArmhf;
+                        }
+                    }
+                    catch
+                    {
+                        return OsType.LinuxArmhf;
+                    }
+                }
+                if (armv6)
+                {
+                    throw new PlatformNotSupportedException("Arm v6 Devices (most likely a Pi 1 or a Pi Zero) are not supported");
+                }
 
                 //Check for Bitness
                 if (Is64BitOs())

@@ -33,5 +33,18 @@
         /// Mac OS 64 bit
         /// </summary>
         MacOs64,
+        /// <summary>
+        /// FRC roboRIO
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        roboRIO,
+        /// <summary>
+        /// Linux Arm Hard Float (Not Raspbian)
+        /// </summary>
+        LinuxArmhf,
+        /// <summary>
+        /// Linux Raspbian
+        /// </summary>
+        LinuxRaspbian
     }
 }

@@ -3,7 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace NativeLibraryUtilities
 {
-    public class RoboRioLibraryLoader : ILibraryLoader
+    ///<summary>
+    /// Library loader for embedded devices
+    /// </summary>
+    public class EmbeddedLibraryLoader : ILibraryLoader
     {
         /// <inheritdoc/>
         public IntPtr NativeLibraryHandle { get; private set; } = IntPtr.Zero;
