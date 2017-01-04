@@ -172,6 +172,7 @@ namespace NativeLibraryUtilities
                 var location = m_nativeLibraryName[OsType.roboRIO];
                 loader.LoadLibrary(location);
                 LibraryLocation = location;
+                return;
             }
 
             AssemblyName name = new AssemblyName(assemblyName);
