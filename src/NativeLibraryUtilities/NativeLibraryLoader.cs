@@ -23,6 +23,11 @@ namespace NativeLibraryUtilities
         /// <inheritdoc/>
         public string LibraryLocation { get; private set; }
 
+        private static bool CheckIsRoboRio()
+        {
+            return File.Exists("/usr/local/frc/bin/frcRunRobot.sh");
+        }
+
         /// <summary>
         /// Add a file location to be used when automatically searching for a library to load
         /// </summary>
@@ -55,20 +60,20 @@ namespace NativeLibraryUtilities
                 UsingTempFile = true;
             }
 
+            // RoboRIO or Direct Load
+            if (directLoad || CheckIsRoboRio())
+            {
+                LibraryLoader = loader;
+                loader.LoadLibrary(location);
+                LibraryLocation = location;
+            }
+            else
             // If we are loading from extraction, extract then load
-            if (!directLoad)
             {
                 ExtractNativeLibrary(location, extractLocation, typeof(T));
                 LibraryLoader = loader;
                 loader.LoadLibrary(extractLocation);
                 LibraryLocation = extractLocation;
-            }
-            else
-            {
-                // Otherwise directly load.
-                LibraryLoader = loader;
-                loader.LoadLibrary(location);
-                LibraryLocation = location;
             }
         }
 
@@ -105,6 +110,11 @@ namespace NativeLibraryUtilities
                 case OsType.MacOs64:
                     LibraryLoader = new MacOsLibraryLoader();
                     break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    LibraryLoader = new EmbeddedLibraryLoader();
+                    break;
             }
 
             LoadNativeLibrary<T>(LibraryLoader, location, directLoad, extractLocation);
@@ -139,14 +149,41 @@ namespace NativeLibraryUtilities
                 case OsType.MacOs64:
                     LibraryLoader = new MacOsLibraryLoader();
                     break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    LibraryLoader = new EmbeddedLibraryLoader();
+                    break;
             }
 
             LoadNativeLibrary<T>(LibraryLoader, m_nativeLibraryName[OsType], directLoad, extractLocation);
-
         }
 
-        public void LoadNativeLibraryFromReflectedAssembly(Type asmType)
+        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName)
         {
+            if (CheckIsRoboRio())
+            {
+                ILibraryLoader loader = new EmbeddedLibraryLoader();
+                LibraryLoader = loader;
+                var location = m_nativeLibraryName[OsType.roboRIO];
+                loader.LoadLibrary(location);
+                LibraryLocation = location;
+            }
+
+            AssemblyName name = new AssemblyName(assemblyName);
+            Assembly asm;
+            try
+            {
+                asm = Assembly.Load(name);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project");
+                throw;
+            }
+
+            Type asmType = asm.GetType("NetworkTables.DesktopLibraries.Natives");
+
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
@@ -167,6 +204,11 @@ namespace NativeLibraryUtilities
                 case OsType.MacOs32:
                 case OsType.MacOs64:
                     LibraryLoader = new MacOsLibraryLoader();
+                    break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    LibraryLoader = new EmbeddedLibraryLoader();
                     break;
             }
 
@@ -222,6 +264,10 @@ namespace NativeLibraryUtilities
             }
             else
             {
+                if (CheckIsRoboRio())
+                {
+                    return OsType.roboRIO;
+                }
 #if NETSTANDARD
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
