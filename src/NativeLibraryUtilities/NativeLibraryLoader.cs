@@ -89,14 +89,16 @@ namespace NativeLibraryUtilities
             if (location == null)
                 throw new ArgumentNullException(nameof(location), "Library location cannot be null");
 
-            if (OsType == OsType.None)
+            OsType osType = OsType;
+
+            if (osType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
+            if (!m_nativeLibraryName.ContainsKey(osType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
-            switch (OsType)
+            switch (osType)
             {
                 case OsType.Windows32:
                 case OsType.Windows64:
@@ -128,14 +130,16 @@ namespace NativeLibraryUtilities
         /// <param name="extractLocation">The location to extract to if the file is embedded. On null, it extracts to a temp file</param>
         public void LoadNativeLibrary<T>(bool directLoad = false, string extractLocation = null)
         {
-            if (OsType == OsType.None)
+            OsType osType = OsType;
+
+            if (osType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            if (!m_nativeLibraryName.ContainsKey(OsType) && !directLoad)
+            if (!m_nativeLibraryName.ContainsKey(osType) && !directLoad)
                 throw new InvalidOperationException("OS Type not contained in dictionary");
 
-            switch (OsType)
+            switch (osType)
             {
                 case OsType.Windows32:
                 case OsType.Windows64:
@@ -156,10 +160,10 @@ namespace NativeLibraryUtilities
                     break;
             }
 
-            LoadNativeLibrary<T>(LibraryLoader, m_nativeLibraryName[OsType], directLoad, extractLocation);
+            LoadNativeLibrary<T>(LibraryLoader, m_nativeLibraryName[osType], directLoad, extractLocation);
         }
 
-        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName)
+        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName, string  nativeType)
         {
             if (CheckIsRoboRio())
             {
@@ -176,13 +180,19 @@ namespace NativeLibraryUtilities
             {
                 asm = Assembly.Load(name);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project");
-                throw;
+                throw new InvalidOperationException($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project", e);
             }
-
-            Type asmType = asm.GetType("NetworkTables.DesktopLibraries.Natives");
+            Type asmType = null;
+            try
+            {
+                asmType = asm.GetType("NetworkTables.DesktopLibraries.Natives", true);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Failed to load desktop assembly type. Please ensure that the {assemblyName} is installed and referenced by your project", e);
+            }
 
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
@@ -295,10 +305,33 @@ namespace NativeLibraryUtilities
                     return OsType.None;
                 }
 
-
-                Console.WriteLine(uname.ToString());
-
                 bool mac = uname.sysname == "Darwin";
+                bool armv7 = uname.machine.ToLower().Contains("armv7");
+                bool armv6 = uname.machine.ToLower().Contains("armv6");
+
+                if (armv7)
+                {
+                    try
+                    {
+                        string text = File.ReadAllText("/etc/os-release");
+                        if (text.Contains("ID=raspbian"))
+                        {
+                            return OsType.LinuxRaspbian;
+                        }
+                        else
+                        {
+                            return OsType.LinuxArmhf;
+                        }
+                    }
+                    catch
+                    {
+                        return OsType.LinuxArmhf;
+                    }
+                }
+                if (armv6)
+                {
+                    throw new PlatformNotSupportedException("Arm v6 Devices (most likely a Pi 1 or a Pi Zero) are not supported");
+                }
 
                 //Check for Bitness
                 if (Is64BitOs())
