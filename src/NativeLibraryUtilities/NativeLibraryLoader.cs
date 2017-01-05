@@ -23,6 +23,10 @@ namespace NativeLibraryUtilities
         /// <inheritdoc/>
         public string LibraryLocation { get; private set; }
 
+        /// <summary>
+        /// Checks if the current system is a roboRIO
+        /// </summary>
+        /// <returns>True if running on a roboRIO</returns>
         public static bool CheckIsRoboRio()
         {
             return File.Exists("/usr/local/frc/bin/frcRunRobot.sh");
@@ -61,7 +65,7 @@ namespace NativeLibraryUtilities
             }
 
             // RoboRIO or Direct Load
-            if (directLoad || CheckIsRoboRio())
+            if (directLoad)
             {
                 LibraryLoader = loader;
                 loader.LoadLibrary(location);
@@ -163,9 +167,14 @@ namespace NativeLibraryUtilities
             LoadNativeLibrary<T>(LibraryLoader, m_nativeLibraryName[osType], directLoad, extractLocation);
         }
 
-        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName, string  nativeType)
+        /// <summary>
+        /// Loads a native library with a reflected assembly holding the native libraries
+        /// </summary>
+        /// <param name="assemblyName">The name of the assembly to reflect into and load from</param>
+        /// <param name="localLoadOnRio">True to force a local load on the RoboRIO</param>
+        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName, bool localLoadOnRio = true)
         {
-            if (CheckIsRoboRio())
+            if (localLoadOnRio && CheckIsRoboRio())
             {
                 ILibraryLoader loader = new EmbeddedLibraryLoader();
                 LibraryLoader = loader;
@@ -184,15 +193,6 @@ namespace NativeLibraryUtilities
             catch (Exception e)
             {
                 throw new InvalidOperationException($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project", e);
-            }
-            Type asmType = null;
-            try
-            {
-                asmType = asm.GetType(nativeType, true);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException($"Failed to load desktop assembly type {nativeType}. Please ensure that the {assemblyName} is installed and referenced by your project", e);
             }
 
             if (OsType == OsType.None)
@@ -229,16 +229,16 @@ namespace NativeLibraryUtilities
             string extractLocation = Path.GetTempFileName();
             UsingTempFile = true;
 
-            ExtractNativeLibrary(m_nativeLibraryName[OsType], extractLocation, asmType);
+            ExtractNativeLibrary(m_nativeLibraryName[OsType], extractLocation, asm);
             LibraryLoader.LoadLibrary(extractLocation);
             LibraryLocation = extractLocation;
         }
 
-        private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Type type)
+        private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Assembly asm)
         {
             byte[] bytes;
             //Load our resource file into memory
-            using (Stream s = type.GetTypeInfo().Assembly.GetManifestResourceStream(resourceLocation))
+            using (Stream s = asm.GetManifestResourceStream(resourceLocation))
             {
                 if (s == null || s.Length == 0)
                     throw new InvalidOperationException("File to extract cannot be null or empty");
@@ -247,6 +247,11 @@ namespace NativeLibraryUtilities
             }
             File.WriteAllBytes(extractLocation, bytes);
             GC.Collect();
+        }
+
+        private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Type type)
+        {
+            ExtractNativeLibrary(resourceLocation, extractLocation, type.GetTypeInfo().Assembly);
         }
 
         private static bool Is64BitOs()
