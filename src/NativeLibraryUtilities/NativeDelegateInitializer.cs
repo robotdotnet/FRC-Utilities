@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Linq;
 
@@ -9,6 +10,31 @@ namespace NativeLibraryUtilities
     /// </summary>
     public static class NativeDelegateInitializer
     {
+#if NETSTANDARD
+        /// <summary>
+        /// Loads and setups a native delegate.
+        /// </summary>
+        /// <param name="library">The library to load from</param>
+        /// <param name="nativeName">The native function name to load</param>
+        /// <returns>A delegate that will call the native function</returns>
+        public static T SetupNativeDelegate<T>(ILibraryInformation library, string nativeName)
+        {
+            return Marshal.GetDelegateForFunctionPointer<T>(library.LibraryLoader.GetProcAddress(nativeName));
+        }
+#else
+        /// <summary>
+        /// Loads and setups a native delegate.
+        /// </summary>
+        /// <param name="library">The library to load from</param>
+        /// <param name="nativeName">The native function name to load</param>
+        /// <param name="delegateType">The type of delegate to create</param>
+        /// <returns>A delegate that will call the native function</returns>
+        public static Delegate SetupNativeDelegate(ILibraryInformation library, string nativeName, Type delegateType)
+        {
+            return Marshal.GetDelegateForFunctionPointer(library.LibraryLoader.GetProcAddress(nativeName), delegateType);
+        }
+#endif
+
         /// <summary>
         /// Sets up all native delegate in the type passed as the generic parameter
         /// </summary>
