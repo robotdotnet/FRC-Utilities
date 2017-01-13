@@ -1,5 +1,5 @@
 ﻿{
-  "version": "424242.0.0-local-*",
+  "version": "4242.0.0-local-*",
 
   "title": "Native Library Utilities",
   "description": "Utility library for interfacing with native libraries.",
