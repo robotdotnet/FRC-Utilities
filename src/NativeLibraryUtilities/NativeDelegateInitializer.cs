@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Linq;
@@ -62,6 +63,44 @@ namespace NativeLibraryUtilities
 #endif
                 field.SetValue(null, setVal);
             }
+        }
+
+        /// <summary>
+        /// Gets a list of all all native delegates in the type passed as the generic parameter
+        /// </summary>
+        /// <typeparam name="T">The type to setup the native delegates in</typeparam>
+        /// <returns>A list of all native delegates that are being requested</returns>
+        public static List<string> GetNativeDelegateList<T>()
+        {
+            List<string> nativeList = new List<string>();
+            TypeInfo info = typeof(T).GetTypeInfo();
+            foreach (FieldInfo field in info.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                var attribute = (NativeDelegateAttribute)field.GetCustomAttribute(typeof(NativeDelegateAttribute));
+                if (attribute == null) continue;
+                string nativeName = attribute.NativeName ?? field.Name;
+                nativeList.Add(nativeName);
+            }
+            return nativeList;
+        }
+
+        /// <summary>
+        /// Gets a list of all all native delegates in the type passed as the generic parameter
+        /// </summary>
+        /// <param name="type">The type to setup the native delegates in</param>
+        /// <returns>A list of all native delegates that are being requested</returns>
+        public static List<string> GetNativeDelegateList(Type type)
+        {
+            List<string> nativeList = new List<string>();
+            TypeInfo info = type.GetTypeInfo();
+            foreach (FieldInfo field in info.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                var attribute = (NativeDelegateAttribute)field.GetCustomAttribute(typeof(NativeDelegateAttribute));
+                if (attribute == null) continue;
+                string nativeName = attribute.NativeName ?? field.Name;
+                nativeList.Add(nativeName);
+            }
+            return nativeList;
         }
     }
 }
