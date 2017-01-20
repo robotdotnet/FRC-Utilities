@@ -43,7 +43,11 @@ namespace NativeLibraryUtilities
         /// <param name="library">The object containing the native library to load from</param>
         public static void SetupNativeDelegates<T>(ILibraryInformation library)
         {
+#if NET35
+            var info = typeof(T);
+#else
             TypeInfo info = typeof(T).GetTypeInfo();
+#endif
 #if NETSTANDARD
             MethodInfo getDelegateForFunctionPointer =
                 typeof(Marshal).GetTypeInfo().GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -73,7 +77,11 @@ namespace NativeLibraryUtilities
         public static List<string> GetNativeDelegateList<T>()
         {
             List<string> nativeList = new List<string>();
+#if NET35
+            var info = typeof(T);
+#else
             TypeInfo info = typeof(T).GetTypeInfo();
+#endif
             foreach (FieldInfo field in info.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 var attribute = (NativeDelegateAttribute)field.GetCustomAttribute(typeof(NativeDelegateAttribute));
@@ -92,7 +100,11 @@ namespace NativeLibraryUtilities
         public static List<string> GetNativeDelegateList(Type type)
         {
             List<string> nativeList = new List<string>();
+#if NET35
+            var info = type;
+#else
             TypeInfo info = type.GetTypeInfo();
+#endif
             foreach (FieldInfo field in info.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 var attribute = (NativeDelegateAttribute)field.GetCustomAttribute(typeof(NativeDelegateAttribute));

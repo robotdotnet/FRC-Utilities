@@ -58,7 +58,7 @@ namespace NativeLibraryUtilities
                 throw new ArgumentNullException(nameof(location), "Library location cannot be null");
 
             // Set to use temp file if extractLocation is null
-            if (string.IsNullOrWhiteSpace(extractLocation) && !directLoad)
+            if (StringUtil.IsNullOrWhiteSpace(extractLocation) && !directLoad)
             {
                 extractLocation = Path.GetTempFileName();
                 UsingTempFile = true;
@@ -251,7 +251,11 @@ namespace NativeLibraryUtilities
 
         private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Type type)
         {
+#if NET35
+            ExtractNativeLibrary(resourceLocation, extractLocation, type.Assembly);
+#else
             ExtractNativeLibrary(resourceLocation, extractLocation, type.GetTypeInfo().Assembly);
+#endif
         }
 
         private static bool Is64BitOs()
