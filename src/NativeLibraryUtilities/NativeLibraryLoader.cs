@@ -168,33 +168,12 @@ namespace NativeLibraryUtilities
         }
 
         /// <summary>
-        /// Loads a native library with a reflected assembly holding the native libraries
+        /// Loads a native library with an assembly holding the native libraries in its resources
         /// </summary>
-        /// <param name="assemblyName">The name of the assembly to reflect into and load from</param>
+        /// <param name="asm">The assembly to load the resources from</param>
         /// <param name="localLoadOnRio">True to force a local load on the RoboRIO</param>
-        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName, bool localLoadOnRio = true)
+        public void LoadNativeLibraryFromAssembly(Assembly asm, bool localLoadOnRio = true)
         {
-            if (localLoadOnRio && CheckIsRoboRio())
-            {
-                ILibraryLoader loader = new EmbeddedLibraryLoader();
-                LibraryLoader = loader;
-                var location = m_nativeLibraryName[OsType.roboRIO];
-                loader.LoadLibrary(location);
-                LibraryLocation = location;
-                return;
-            }
-
-            AssemblyName name = new AssemblyName(assemblyName);
-            Assembly asm;
-            try
-            {
-                asm = Assembly.Load(name);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project", e);
-            }
-
             if (OsType == OsType.None)
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
@@ -232,6 +211,37 @@ namespace NativeLibraryUtilities
             ExtractNativeLibrary(m_nativeLibraryName[OsType], extractLocation, asm);
             LibraryLoader.LoadLibrary(extractLocation);
             LibraryLocation = extractLocation;
+        }
+
+        /// <summary>
+        /// Loads a native library with a reflected assembly holding the native libraries
+        /// </summary>
+        /// <param name="assemblyName">The name of the assembly to reflect into and load from</param>
+        /// <param name="localLoadOnRio">True to force a local load on the RoboRIO</param>
+        public void LoadNativeLibraryFromReflectedAssembly(string assemblyName, bool localLoadOnRio = true)
+        {
+            if (localLoadOnRio && CheckIsRoboRio())
+            {
+                ILibraryLoader loader = new EmbeddedLibraryLoader();
+                LibraryLoader = loader;
+                var location = m_nativeLibraryName[OsType.roboRIO];
+                loader.LoadLibrary(location);
+                LibraryLocation = location;
+                return;
+            }
+
+            AssemblyName name = new AssemblyName(assemblyName);
+            Assembly asm;
+            try
+            {
+                asm = Assembly.Load(name);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Failed to load desktop libraries. Please ensure that the {assemblyName} is installed and referenced by your project", e);
+            }
+
+            LoadNativeLibraryFromAssembly(asm, localLoadOnRio);
         }
 
         private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Assembly asm)
