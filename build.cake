@@ -113,6 +113,7 @@ Task("Pack")
     {
         foreach (var project in GetFiles("./src/FRC-Utilities/*.csproj"))
         {
+            var sources = "--include-source";
             DotNetCorePack(
                 project.GetDirectory().FullPath,
                 new DotNetCorePackSettings()
@@ -121,6 +122,7 @@ Task("Pack")
                     OutputDirectory = artifactsDirectory,
                     ArgumentCustomization = args => args
                         .Append(msBuildVersionArgs)
+                        .Append(sources)
                 });
         }
     });
