@@ -19,23 +19,17 @@ namespace FRC
         /// <returns>The cached UTF8 string</returns>
         public static CachedNativeString CreateCachedUTF8String(string str)
         {
-            var nativeStr = s_stringCache.GetOrAdd(str, s => new CachedNativeString(s));
-            return nativeStr;
+            return s_stringCache.GetOrAdd(str, s => new CachedNativeString(s));
         }
 
         /// <summary>
-        /// Creates a UTF8 null termincated string and stores it in a byte[]
+        /// Creates a UTF8 null termincated string and stores it in a ManagedString
         /// </summary>
         /// <param name="str">The string to create as UTF8</param>
         /// <returns>The UTF8 string</returns>
-        public static byte[] CreateUTF8String(string str)
+        public static ManagedString CreateUTF8String(string str)
         {
-            var encoding = Encoding.UTF8;
-            var bytes = encoding.GetByteCount(str);
-            var buffer = new byte[bytes + 1];
-            encoding.GetBytes(str, 0, str.Length, buffer, 0);
-            buffer[bytes] = 0;
-            return buffer;
+            return new ManagedString(str);
         }
 
         /// <summary>
@@ -58,7 +52,7 @@ namespace FRC
         {
             unsafe
             {
-#if NETSTANDARD
+#if (NETSTANDARD || NET46)
                 return Encoding.UTF8.GetString((byte*)str, (int)size);
 #else
                 int iSize = (int)size.ToUInt64();

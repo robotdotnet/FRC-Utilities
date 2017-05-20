@@ -36,5 +36,14 @@ namespace FRC
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the string
+        /// </summary>
+        /// <returns>The contained string</returns>
+        public override string ToString()
+        {
+            return UTF8String.ReadUTF8String(Buffer, Length);
+        }
     }
 }
