@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
     ///<summary>
     /// Library loader for embedded devices

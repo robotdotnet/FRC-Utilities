@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
     /// <summary>
     /// This class handles native libraries on Windows

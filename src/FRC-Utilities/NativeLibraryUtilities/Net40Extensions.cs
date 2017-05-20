@@ -2,9 +2,9 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
-    #if NET35
+    #if !NETSTANDARD
     internal static class Net35Extensions
     {
 

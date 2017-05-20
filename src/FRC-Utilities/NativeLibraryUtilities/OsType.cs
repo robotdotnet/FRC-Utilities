@@ -1,4 +1,4 @@
-﻿namespace NativeLibraryUtilities
+﻿namespace FRC.NativeLibraryUtilties
 {
     /// <summary>
     /// Enumeration of the OS type for this system.

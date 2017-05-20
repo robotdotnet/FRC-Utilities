@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
     /// <summary>
     /// This class handles loading of a native library
@@ -251,7 +251,7 @@ namespace NativeLibraryUtilities
 
         private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Type type)
         {
-#if NET35
+#if !NETSTANDARD
             ExtractNativeLibrary(resourceLocation, extractLocation, type.Assembly);
 #else
             ExtractNativeLibrary(resourceLocation, extractLocation, type.GetTypeInfo().Assembly);

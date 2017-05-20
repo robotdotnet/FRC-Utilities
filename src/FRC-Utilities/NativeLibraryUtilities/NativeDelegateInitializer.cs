@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Linq;
 
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
     /// <summary>
     /// This class contains methods to initialize delegates 
@@ -43,7 +43,7 @@ namespace NativeLibraryUtilities
         /// <param name="library">The object containing the native library to load from</param>
         public static void SetupNativeDelegates<T>(ILibraryInformation library)
         {
-#if NET35
+#if !NETSTANDARD
             var info = typeof(T);
 #else
             TypeInfo info = typeof(T).GetTypeInfo();
@@ -77,7 +77,7 @@ namespace NativeLibraryUtilities
         public static List<string> GetNativeDelegateList<T>()
         {
             List<string> nativeList = new List<string>();
-#if NET35
+#if !NETSTANDARD
             var info = typeof(T);
 #else
             TypeInfo info = typeof(T).GetTypeInfo();
@@ -100,7 +100,7 @@ namespace NativeLibraryUtilities
         public static List<string> GetNativeDelegateList(Type type)
         {
             List<string> nativeList = new List<string>();
-#if NET35
+#if !NETSTANDARD
             var info = type;
 #else
             TypeInfo info = type.GetTypeInfo();

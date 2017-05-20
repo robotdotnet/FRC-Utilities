@@ -1,0 +1,96 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace FRC
+{
+    /// <summary>
+    /// Utility class for working with UTF8 string getting passed to native code.
+    /// </summary>
+    public static class UTF8String
+    {
+        private static readonly ConcurrentDictionary<string, CachedNativeString> s_stringCache = new ConcurrentDictionary<string, CachedNativeString>();
+
+        /// <summary>
+        /// Creates a UTF8 string that will be cached, using the already cached string is already created
+        /// </summary>
+        /// <param name="str">The string to cache</param>
+        /// <returns>The cached UTF8 string</returns>
+        public static CachedNativeString CreateCachedUTF8String(string str)
+        {
+            var nativeStr = s_stringCache.GetOrAdd(str, s => new CachedNativeString(s));
+            return nativeStr;
+        }
+
+        /// <summary>
+        /// Creates a UTF8 null termincated string and stores it in a byte[]
+        /// </summary>
+        /// <param name="str">The string to create as UTF8</param>
+        /// <returns>The UTF8 string</returns>
+        public static byte[] CreateUTF8String(string str)
+        {
+            var encoding = Encoding.UTF8;
+            var bytes = encoding.GetByteCount(str);
+            var buffer = new byte[bytes + 1];
+            encoding.GetBytes(str, 0, str.Length, buffer, 0);
+            buffer[bytes] = 0;
+            return buffer;
+        }
+
+        /// <summary>
+        /// Creates a UTF8 null termincated native string that can be disposed.
+        /// </summary>
+        /// <param name="str">The string to create as UTF8</param>
+        /// <returns>The native UTF8 string</returns>
+        public static DisposableNativeString CreateUTF8DisposableString(string str)
+        {
+            return new DisposableNativeString(str);
+        }
+
+        /// <summary>
+        /// Reads a UTF8 string from a native pointer.
+        /// </summary>
+        /// <param name="str">The pointer to read from</param>
+        /// <param name="size">The length of the string</param>
+        /// <returns>The managed string</returns>
+        public static string ReadUTF8String(IntPtr str, UIntPtr size)
+        {
+            unsafe
+            {
+#if NETSTANDARD
+                return Encoding.UTF8.GetString((byte*)str, (int)size);
+#else
+                int iSize = (int)size.ToUInt64();
+                byte[] data = new byte[iSize];
+                Marshal.Copy(str, data, 0, iSize);
+                return Encoding.UTF8.GetString(data);
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Reads a UTF8 string from a null termincated native pointer
+        /// </summary>
+        /// <param name="str">The pointer to read from (must be null terminated)</param>
+        /// <returns>The managed string</returns>
+        public static string ReadUTF8String(IntPtr str)
+        {
+            unsafe
+            {
+                byte* data = (byte*)str;
+                int count = 0;
+                while (true)
+                {
+                    if (data[count] == 0)
+                    {
+                        break;
+                    }
+                    count++;
+                }
+                
+                return ReadUTF8String(str, (UIntPtr)count);
+            }
+        }
+    }
+}

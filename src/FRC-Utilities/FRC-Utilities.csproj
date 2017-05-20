@@ -1,38 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Utility library for interfacing with native libraries.</Description>
-    <Copyright>Copyright 2016 RobotDotNet</Copyright>
-    <AssemblyTitle>Native Library Utilities</AssemblyTitle>
+    <Description>FRC Utility Library</Description>
+    <Copyright>Copyright 2016-2017 RobotDotNet</Copyright>
+    <AssemblyTitle>FRC Utilities</AssemblyTitle>
     <Authors>RobotDotNet</Authors>
-    <TargetFrameworks>net35;net45;netstandard1.5</TargetFrameworks>
+    <TargetFrameworks>net40;netstandard1.5</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>NativeLibraryUtilities</AssemblyName>
-    <PackageId>NativeLibraryUtilities</PackageId>
-    <PackageTags>Native;Library;Delegates</PackageTags>
-    <PackageProjectUrl>https://github.com/robotdotnet/NativeLibraryUtilities</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/robotdotnet/NativeLibraryUtilities/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <AssemblyName>FRC.Utilities</AssemblyName>
+    <PackageId>FRC.Utilities</PackageId>
+    <PackageTags>Native;Library;Delegates;FRC</PackageTags>
+    <PackageProjectUrl>https://github.com/robotdotnet/FRC-Utilities</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/robotdotnet/FRC-Utilities/blob/master/LICENSE.txt</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>git://github.com/robotdotnet/NativeLibraryUtilities</RepositoryUrl>
+    <RepositoryUrl>git://github.com/robotdotnet/FRC-Utilities</RepositoryUrl>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <RootNamespace>FRC</RootNamespace>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <Reference Include="System" />
-  </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <DefineConstants>$(DefineConstants);NET35</DefineConstants>
-    <!-- Workaround to allow .NET 3.5 to properly build. -->
-    <FrameworkPathOverride>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
-  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>

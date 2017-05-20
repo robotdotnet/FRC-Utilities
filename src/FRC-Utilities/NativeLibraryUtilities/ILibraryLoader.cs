@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
     /// <summary>
     /// Interface for platform specific native interface to the library

@@ -111,7 +111,7 @@ Task("Pack")
     .IsDependentOn("Test")
     .Does(() =>
     {
-        foreach (var project in GetFiles("./src/NativeLibraryUtilities/*.csproj"))
+        foreach (var project in GetFiles("./src/FRC-Utilities/*.csproj"))
         {
             DotNetCorePack(
                 project.GetDirectory().FullPath,

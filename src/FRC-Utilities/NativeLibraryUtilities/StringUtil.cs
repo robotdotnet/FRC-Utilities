@@ -1,4 +1,4 @@
-namespace NativeLibraryUtilities
+namespace FRC.NativeLibraryUtilties
 {
     internal static class StringUtil
     {
