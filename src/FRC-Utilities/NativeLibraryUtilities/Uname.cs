@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 // ReSharper disable InconsistentNaming
 
-namespace FRC.NativeLibraryUtilties
+namespace FRC.NativeLibraryUtilities
 {
     internal sealed class Utsname
         : IEquatable<Utsname>

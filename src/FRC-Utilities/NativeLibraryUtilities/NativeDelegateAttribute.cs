@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FRC.NativeLibraryUtilties
+namespace FRC.NativeLibraryUtilities
 {
     /// <summary>
     /// Specifies that the attributed field should be considered a target for native initialization 

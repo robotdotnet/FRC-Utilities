@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Linq;
 
-namespace FRC.NativeLibraryUtilties
+namespace FRC.NativeLibraryUtilities
 {
     /// <summary>
     /// This class contains methods to initialize delegates 

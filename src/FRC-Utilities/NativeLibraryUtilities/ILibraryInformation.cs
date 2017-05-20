@@ -1,4 +1,4 @@
-﻿namespace FRC.NativeLibraryUtilties
+﻿namespace FRC.NativeLibraryUtilities
 {
     /// <summary>
     /// Interface for getting information about a loaded native library.
