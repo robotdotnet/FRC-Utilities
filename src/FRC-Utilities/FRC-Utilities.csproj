@@ -4,6 +4,7 @@
     <Description>FRC Utility Library</Description>
     <Copyright>Copyright 2016-2017 RobotDotNet</Copyright>
     <AssemblyTitle>FRC Utilities</AssemblyTitle>
+    <Title>FRC Utilities</Title>
     <Authors>RobotDotNet</Authors>
     <TargetFrameworks>net40;netstandard1.5</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
