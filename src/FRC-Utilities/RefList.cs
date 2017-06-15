@@ -34,10 +34,7 @@ namespace FRC
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
 #endif
-    internal class RefList<T> : IList<T>, System.Collections.IList
-#if !NET40
-        , IReadOnlyList<T>
-#endif
+    internal class RefList<T> : IList<T>, System.Collections.IList, IReadOnlyList<T>
     {
         private const int _defaultCapacity = 4;
 

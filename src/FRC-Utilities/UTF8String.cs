@@ -52,7 +52,7 @@ namespace FRC
         {
             unsafe
             {
-#if (NETSTANDARD || NET46)
+#if (!NET451)
                 return Encoding.UTF8.GetString((byte*)str, (int)size);
 #else
                 int iSize = (int)size.ToUInt64();

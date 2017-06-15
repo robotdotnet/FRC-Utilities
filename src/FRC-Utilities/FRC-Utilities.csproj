@@ -6,7 +6,7 @@
     <AssemblyTitle>FRC Utilities</AssemblyTitle>
     <Title>FRC Utilities</Title>
     <Authors>RobotDotNet</Authors>
-    <TargetFrameworks>net40;net46;netstandard1.5</TargetFrameworks>
+    <TargetFrameworks>net451;net46;netstandard1.5</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>FRC.Utilities</AssemblyName>
     <PackageId>FRC.Utilities</PackageId>
@@ -40,8 +40,8 @@
     <DefineConstants>$(DefineConstants);NET46</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);NET40</DefineConstants>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <DefineConstants>$(DefineConstants);NET451</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
