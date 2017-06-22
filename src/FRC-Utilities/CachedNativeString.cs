@@ -8,31 +8,32 @@ namespace FRC
     /// Holds a Cached UTF8 string to pass to native code. There is no way to initialize or dispose of this
     /// string from user code.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CachedNativeString
+    public unsafe struct CachedNativeString
     {
         /// <summary>
         /// Pointer to this string, null terminated. Do not modify this pointer.
         /// </summary>
-        public IntPtr Buffer;
+        public byte* Buffer;
         /// <summary>
         /// The Length of this string without the null terminator;
         /// </summary>
         public UIntPtr Length;
 
+        private string m_string;
+
         internal CachedNativeString(string vStr)
         {
+            m_string = vStr;
             unsafe
             {
                 fixed (char* str = vStr)
                 {
                     var encoding = Encoding.UTF8;
                     int bytes = encoding.GetByteCount(str, vStr.Length);
-                    Buffer = Marshal.AllocHGlobal((bytes + 1) * sizeof(byte));
+                    Buffer = (byte*)Marshal.AllocHGlobal((bytes + 1) * sizeof(byte));
                     Length = (UIntPtr)bytes;
-                    byte* data = (byte*)Buffer.ToPointer();
-                    encoding.GetBytes(str, vStr.Length, data, bytes);
-                    data[bytes] = 0;
+                    encoding.GetBytes(str, vStr.Length, Buffer, bytes);
+                    Buffer[bytes] = 0;
                 }
             }
         }
@@ -43,7 +44,7 @@ namespace FRC
         /// <returns>The contained string</returns>
         public override string ToString()
         {
-            return UTF8String.ReadUTF8String(Buffer, Length);
+            return m_string;
         }
     }
 }

@@ -12,6 +12,8 @@ namespace FRC
     {
         private static readonly ConcurrentDictionary<string, CachedNativeString> s_stringCache = new ConcurrentDictionary<string, CachedNativeString>();
 
+        private static Func<string, CachedNativeString> CacheCreateFunc = (s) => new CachedNativeString(s);
+
         /// <summary>
         /// Creates a UTF8 string that will be cached, using the already cached string is already created
         /// </summary>
@@ -19,7 +21,7 @@ namespace FRC
         /// <returns>The cached UTF8 string</returns>
         public static CachedNativeString CreateCachedUTF8String(string str)
         {
-            return s_stringCache.GetOrAdd(str, s => new CachedNativeString(s));
+            return s_stringCache.GetOrAdd(str, CacheCreateFunc);
         }
 
         /// <summary>
@@ -57,10 +59,34 @@ namespace FRC
 #else
                 int iSize = (int)size.ToUInt64();
                 byte[] data = new byte[iSize];
-                Marshal.Copy(str, data, 0, iSize);
+                for (int i = 0; i < iSize; i++)
+                {
+                    data[i] = ((byte*)str)[i];
+                }
                 return Encoding.UTF8.GetString(data);
 #endif
             }
+        }
+
+        /// <summary>
+        /// Reads a UTF8 string from a native pointer.
+        /// </summary>
+        /// <param name="str">The pointer to read from</param>
+        /// <param name="size">The length of the string</param>
+        /// <returns>The managed string</returns>
+        public static unsafe string ReadUTF8String(byte* str, UIntPtr size)
+        {
+#if (!NET451)
+            return Encoding.UTF8.GetString(str, (int)size);
+#else
+            int iSize = (int)size.ToUInt64();
+            byte[] data = new byte[iSize];
+            for (int i = 0; i < iSize; i++)
+            {
+                data[i] = str[i];
+            }
+            return Encoding.UTF8.GetString(data);
+#endif
         }
 
         /// <summary>
@@ -82,9 +108,30 @@ namespace FRC
                     }
                     count++;
                 }
-                
+
                 return ReadUTF8String(str, (UIntPtr)count);
             }
+        }
+
+        /// <summary>
+        /// Reads a UTF8 string from a null termincated native pointer
+        /// </summary>
+        /// <param name="str">The pointer to read from (must be null terminated)</param>
+        /// <returns>The managed string</returns>
+        public static unsafe string ReadUTF8String(byte* str)
+        {
+            byte* data = str;
+            int count = 0;
+            while (true)
+            {
+                if (data[count] == 0)
+                {
+                    break;
+                }
+                count++;
+            }
+
+            return ReadUTF8String(str, (UIntPtr)count);
         }
     }
 }
