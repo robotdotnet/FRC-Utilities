@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using FRC.ILGeneration;
 
 namespace FRC.NativeLibraryUtilities
 {
@@ -28,7 +29,7 @@ namespace FRC.NativeLibraryUtilities
         }
 
         /// <inheritdoc/>
-        IntPtr ILibraryLoader.GetProcAddress(string name)
+        IntPtr IFunctionPointerLoader.GetProcAddress(string name)
         {
             dlerror();
             IntPtr result = dlsym(NativeLibraryHandle, name);

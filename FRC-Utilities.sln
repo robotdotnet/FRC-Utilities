@@ -1,10 +1,14 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DB3E1B73-3837-468A-B67F-0640EE5FFA9B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRC-Utilities", "src\FRC-Utilities\FRC-Utilities.csproj", "{132E6AEA-F5FC-4991-9DA1-6F2DD41AF500}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C6BE2054-7DF2-4363-B4AE-6755A12A4F62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRC-Utilities.Test", "test\FRC-Utilities.Test\FRC-Utilities.Test.csproj", "{8A90236F-21FA-4AF3-8EF4-136296D2D605}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,11 +20,16 @@ Global
 		{132E6AEA-F5FC-4991-9DA1-6F2DD41AF500}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{132E6AEA-F5FC-4991-9DA1-6F2DD41AF500}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{132E6AEA-F5FC-4991-9DA1-6F2DD41AF500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A90236F-21FA-4AF3-8EF4-136296D2D605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A90236F-21FA-4AF3-8EF4-136296D2D605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A90236F-21FA-4AF3-8EF4-136296D2D605}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A90236F-21FA-4AF3-8EF4-136296D2D605}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{132E6AEA-F5FC-4991-9DA1-6F2DD41AF500} = {DB3E1B73-3837-468A-B67F-0640EE5FFA9B}
+		{8A90236F-21FA-4AF3-8EF4-136296D2D605} = {C6BE2054-7DF2-4363-B4AE-6755A12A4F62}
 	EndGlobalSection
 EndGlobal

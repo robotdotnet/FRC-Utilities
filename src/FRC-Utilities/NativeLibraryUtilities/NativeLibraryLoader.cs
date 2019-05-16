@@ -58,7 +58,7 @@ namespace FRC.NativeLibraryUtilities
                 throw new ArgumentNullException(nameof(location), "Library location cannot be null");
 
             // Set to use temp file if extractLocation is null
-            if (StringUtil.IsNullOrWhiteSpace(extractLocation) && !directLoad)
+            if (string.IsNullOrWhiteSpace(extractLocation) && !directLoad)
             {
                 extractLocation = Path.GetTempFileName();
                 UsingTempFile = true;

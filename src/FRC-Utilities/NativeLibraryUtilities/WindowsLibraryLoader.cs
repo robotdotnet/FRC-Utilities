@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using FRC.ILGeneration;
 
 namespace FRC.NativeLibraryUtilities
 {
@@ -19,7 +20,7 @@ namespace FRC.NativeLibraryUtilities
             NativeLibraryHandle = LoadLibrary(filename);
         }
 
-        IntPtr ILibraryLoader.GetProcAddress(string name)
+        IntPtr IFunctionPointerLoader.GetProcAddress(string name)
         {
             IntPtr addr = GetProcAddress(NativeLibraryHandle, name);
             if (addr == IntPtr.Zero)

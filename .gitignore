@@ -304,3 +304,5 @@ $RECYCLE.BIN/
 
 tools/
 Artifacts/
+
+.vscode/
