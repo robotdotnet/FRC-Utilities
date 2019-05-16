@@ -28,3 +28,7 @@ steps:
   inputs:
     artifactName: 'NuGet'
 
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'xUnit'
+    testResultsFiles: '**/*.trx'
