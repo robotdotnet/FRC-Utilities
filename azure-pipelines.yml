@@ -30,5 +30,5 @@ steps:
 
 - task: PublishTestResults@2
   inputs:
-    testResultsFormat: 'xUnit'
+    testResultsFormat: 'VSTest'
     testResultsFiles: '**/*.trx'
