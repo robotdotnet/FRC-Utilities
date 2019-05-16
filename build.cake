@@ -3,7 +3,7 @@ var target = Argument("Target", "Default");
 // Configuration - The build configuration (Debug/Release) to use.
 // 1. If command line parameter parameter passed, use that.
 // 2. Otherwise if an Environment variable exists, use that.
-var configuration = 
+var configuration =
     HasArgument("Configuration") ? Argument<string>("Configuration") :
     EnvironmentVariable("Configuration") != null ? EnvironmentVariable("BuildNumber") : "Release";
 // The build number to use in the version number of the built NuGet packages.
@@ -17,20 +17,21 @@ var buildNumberInt =
     HasArgument("BuildNumber") ? Argument<int>("BuildNumber") :
     AppVeyor.IsRunningOnAppVeyor ? AppVeyor.Environment.Build.Number :
     TravisCI.IsRunningOnTravisCI ? TravisCI.Environment.Build.BuildNumber :
+    TFBuild.IsRunningOnAzurePipelines ? 42 :
     EnvironmentVariable("BuildNumber") != null ? int.Parse(EnvironmentVariable("BuildNumber")) : 0;
 
 var buildNumber = buildNumberInt.ToString("D4");
 
 var buildVersion = "1.0.0";
 
-var buildType = (AppVeyor.IsRunningOnAppVeyor || TravisCI.IsRunningOnTravisCI) ? "ci-"  : "local-";
+var buildType = (AppVeyor.IsRunningOnAppVeyor || TravisCI.IsRunningOnTravisCI || TFBuild.IsRunningOnAzurePipelines) ? "ci-"  : "local-";
 
 buildType = buildType + buildNumber;
 
-var tagName = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME");
-if (tagName != null) {
+var tagName = EnvironmentVariable("Build.SourceBranch");
+if (tagName != null && tagName.StartsWith("refs/tags/v")) {
     // On AppVeyor
-    buildVersion =  tagName.Substring(1);
+    buildVersion =  tagName.Substring("refs/tags/v".Length);
     if (!tagName.Contains("-")) {
         // Building a full release
         buildType = "";
@@ -46,14 +47,14 @@ Console.WriteLine("BuildNumber: " + msBuildVersionArgs);
 
 // A directory path to an Artifacts directory.
 var artifactsDirectory = Directory("./Artifacts");
- 
+
 // Deletes the contents of the Artifacts folder if it should contain anything from a previous build.
 Task("Clean")
     .Does(() =>
     {
         CleanDirectory(artifactsDirectory);
     });
- 
+
 // Run dotnet restore to restore all package references.
 Task("Restore")
     .IsDependentOn("Clean")
@@ -61,7 +62,7 @@ Task("Restore")
     {
         DotNetCoreRestore();
     });
- 
+
 // Find all crproj projects and build them using the build configuration specified as an argument.
  Task("Build")
     .IsDependentOn("Restore")
@@ -80,7 +81,7 @@ Task("Restore")
                 });
         }
     });
- 
+
 // Look under a 'Tests' folder and run dotnet test against all of those projects.
 // Then drop the XML test results file in the Artifacts folder at the root.
 Task("Test")
@@ -103,9 +104,9 @@ Task("Test")
                 });
         }
     });
- 
+
 // Run dotnet pack to produce NuGet packages from our projects. Versions the package
-// using the build number argument on the script which is used as the revision number 
+// using the build number argument on the script which is used as the revision number
 // (Last number in 1.0.0.0). The packages are dropped in the Artifacts directory.
 Task("Pack")
     .IsDependentOn("Test")
@@ -126,11 +127,11 @@ Task("Pack")
                 });
         }
     });
- 
+
 // The default task to run if none is explicitly specified. In this case, we want
 // to run everything starting from Clean, all the way up to Pack.
 Task("Default")
     .IsDependentOn("Pack");
- 
+
 // Executes the task specified in the target argument.
 RunTarget(target);
