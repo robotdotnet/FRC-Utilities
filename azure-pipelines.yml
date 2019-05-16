@@ -4,7 +4,12 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+  tags:
+    include:
+    - v*
+  branches:
+    include:
+    - master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -14,7 +19,7 @@ steps:
   displayName: 'Build Artifacts'
 
 - task: CopyFiles@2
-  inputs: 
+  inputs:
     Contents: 'Artifacts/**/*.nupkg'
     targetFolder: $(Build.ArtifactStagingDirectory)
   displayName: "Copy Artifacts"
