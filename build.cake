@@ -30,10 +30,9 @@ buildType = buildType + buildNumber;
 
 var tagName = EnvironmentVariable("BUILD_SOURCEBRANCH");
 if (tagName != null && tagName.StartsWith("refs/tags/v")) {
-    Console.WriteLine(EnvironmentVariable("BUILD_SOURCEBRANCH"));
-    Console.WriteLine(EnvironmentVariable("BUILD_SOURCEBRANCHNAME"));
+    tagName = EnvironmentVariable("BUILD_SOURCEBRANCHNAME");
     // On AppVeyor
-    buildVersion =  EnvironmentVariable("BUILD_SOURCEBRANCHNAME").Substring(1);
+    buildVersion =  tagName.Substring(1);
     if (!tagName.Contains("-")) {
         // Building a full release
         buildType = "";
