@@ -28,10 +28,10 @@ var buildType = (AppVeyor.IsRunningOnAppVeyor || TravisCI.IsRunningOnTravisCI ||
 
 buildType = buildType + buildNumber;
 
-var tagName = EnvironmentVariable("Build.SourceBranch");
+var tagName = EnvironmentVariable("BUILD_SOURCEBRANCH");
 if (tagName != null && tagName.StartsWith("refs/tags/v")) {
     // On AppVeyor
-    buildVersion =  tagName.Substring("refs/tags/v".Length);
+    buildVersion =  EnvironmentVariable("BUILD_SOURCEBRANCHNAME").Substring(1);
     if (!tagName.Contains("-")) {
         // Building a full release
         buildType = "";
