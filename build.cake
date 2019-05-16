@@ -31,7 +31,7 @@ buildType = buildType + buildNumber;
 var tagName = EnvironmentVariable("BUILD_SOURCEBRANCH");
 if (tagName != null && tagName.StartsWith("refs/tags/v")) {
     tagName = EnvironmentVariable("BUILD_SOURCEBRANCHNAME");
-    // On AppVeyor
+    // On Azure
     buildVersion =  tagName.Substring(1);
     if (!tagName.Contains("-")) {
         // Building a full release
