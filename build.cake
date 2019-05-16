@@ -24,7 +24,7 @@ var buildNumber = buildNumberInt.ToString("D4");
 
 var buildVersion = "1.0.0";
 
-Console.WriteLine(TFBuild.IsRunningOnAzurePipelines);
+Console.WriteLine(TFBuild.IsRunningOnAzurePipelinesHosted);
 
 var buildType = (AppVeyor.IsRunningOnAppVeyor || TravisCI.IsRunningOnTravisCI || TFBuild.IsRunningOnAzurePipelines) ? "ci-"  : "local-";
 
