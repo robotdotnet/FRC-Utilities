@@ -17,16 +17,14 @@ var buildNumberInt =
     HasArgument("BuildNumber") ? Argument<int>("BuildNumber") :
     AppVeyor.IsRunningOnAppVeyor ? AppVeyor.Environment.Build.Number :
     TravisCI.IsRunningOnTravisCI ? TravisCI.Environment.Build.BuildNumber :
-    TFBuild.IsRunningOnAzurePipelines ? 42 :
+    TFBuild.IsRunningOnAzurePipelinesHosted ? 0 :
     EnvironmentVariable("BuildNumber") != null ? int.Parse(EnvironmentVariable("BuildNumber")) : 0;
 
 var buildNumber = buildNumberInt.ToString("D4");
 
 var buildVersion = "1.0.0";
 
-Console.WriteLine(TFBuild.IsRunningOnAzurePipelinesHosted);
-
-var buildType = (AppVeyor.IsRunningOnAppVeyor || TravisCI.IsRunningOnTravisCI || TFBuild.IsRunningOnAzurePipelines) ? "ci-"  : "local-";
+var buildType = (AppVeyor.IsRunningOnAppVeyor || TravisCI.IsRunningOnTravisCI || TFBuild.IsRunningOnAzurePipelinesHosted) ? "ci-"  : "local-";
 
 buildType = buildType + buildNumber;
 
