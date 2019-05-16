@@ -21,6 +21,7 @@ namespace FRC.ILGeneration
 
         public T GenerateImplementation()
         {
+            Console.WriteLine("Generating Impl");
             AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(typeof(T).Name + "Asm"), AssemblyBuilderAccess.Run);
             ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule(typeof(T).Name + "Module");
             TypeBuilder typeBuilder = moduleBuilder.DefineType("Default" + typeof(T).Name);
@@ -32,8 +33,13 @@ namespace FRC.ILGeneration
             {
                 var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
                 var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Virtual | MethodAttributes.Public, method.ReturnType, parameters);
-
-                ilGenerator.GenerateMethod(methodBuilder.GetILGenerator(), methodBuilder.ReturnType, parameters, functionPointerLoader.GetProcAddress(method.Name), true);
+                var nativeCallAttribute = method.GetCustomAttribute<NativeCallAtrribute>();
+                string nativeName = method.Name;
+                if (nativeCallAttribute != null && nativeCallAttribute.NativeName != null)
+                {
+                    nativeName = nativeCallAttribute.NativeName;
+                }
+                ilGenerator.GenerateMethod(methodBuilder.GetILGenerator(), methodBuilder.ReturnType, parameters, functionPointerLoader.GetProcAddress(nativeName), true);
             }
 
             var typeInfo = typeBuilder.CreateTypeInfo();

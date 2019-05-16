@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using FRC.ILGeneration;
 
 namespace FRC.NativeLibraryUtilities
 {
@@ -232,6 +233,20 @@ namespace FRC.NativeLibraryUtilities
             ExtractNativeLibrary(m_nativeLibraryName[OsType], extractLocation, asm);
             LibraryLoader.LoadLibrary(extractLocation);
             LibraryLocation = extractLocation;
+        }
+
+        public T LoadNativeInterface<T>() where T : class {
+            if (!typeof(T).IsInterface) {
+                throw new InvalidOperationException($"{typeof(T).Name} must be an interface");
+            }
+
+            if (LibraryLoader == null) {
+                throw new InvalidOperationException("A native library is not already loaded");
+            }
+
+            var ilGenerator = new CalliILGenerator();
+            var interfaceGenerator = new InterfaceGenerator<T>(LibraryLoader, ilGenerator);
+            return interfaceGenerator.GenerateImplementation();
         }
 
         private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Assembly asm)
