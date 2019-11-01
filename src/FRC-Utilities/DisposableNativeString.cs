@@ -20,7 +20,7 @@ namespace FRC
         /// </summary>
         public UIntPtr Length;
 
-        private string m_string;
+        private readonly string m_string;
 
         /// <summary>
         /// Creates a new UTF8 string from a managed string
@@ -49,7 +49,6 @@ namespace FRC
         public unsafe void Dispose()
         {
             Marshal.FreeHGlobal((IntPtr)Buffer);
-            m_string = null;
         }
 
         /// <summary>

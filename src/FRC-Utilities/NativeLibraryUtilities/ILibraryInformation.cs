@@ -8,11 +8,11 @@
         /// <summary>
         /// The LibraryLoader used to load this library
         /// </summary>
-        ILibraryLoader LibraryLoader { get; }
+        ILibraryLoader? LibraryLoader { get; }
         /// <summary>
         /// The location on disk of the native library
         /// </summary>
-        string LibraryLocation { get; }
+        string? LibraryLocation { get; }
         /// <summary>
         /// The OS Type of the loaded system.
         /// </summary>

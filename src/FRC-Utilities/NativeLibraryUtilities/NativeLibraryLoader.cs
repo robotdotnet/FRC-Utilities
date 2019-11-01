@@ -15,14 +15,14 @@ namespace FRC.NativeLibraryUtilities
         private readonly Dictionary<OsType, string> m_nativeLibraryName = new Dictionary<OsType, string>();
 
         /// <inheritdoc/>
-        public ILibraryLoader LibraryLoader { get; private set; }
+        public ILibraryLoader? LibraryLoader { get; private set; }
         /// <inheritdoc/>
         public OsType OsType { get; } = GetOsType();
         /// <inheritdoc/>
         public bool UsingTempFile { get; private set; }
 
         /// <inheritdoc/>
-        public string LibraryLocation { get; private set; }
+        public string? LibraryLocation { get; private set; }
 
         /// <summary>
         /// Checks if the current system is a roboRIO
@@ -51,7 +51,7 @@ namespace FRC.NativeLibraryUtilities
         /// <param name="location">The file location. Can be either an embedded resource, or a direct file location</param>
         /// <param name="directLoad">True to load the file directly from disk, otherwise false to extract from embedded</param>
         /// <param name="extractLocation">The location to extract to if the file is embedded. On null, it extracts to a temp file</param>
-        public void LoadNativeLibrary<T>(ILibraryLoader loader, string location, bool directLoad = false, string extractLocation = null)
+        public void LoadNativeLibrary<T>(ILibraryLoader? loader, string location, bool directLoad = false, string? extractLocation = null)
         {
             if (loader == null)
                 throw new ArgumentNullException(nameof(loader), "Library loader cannot be null");
@@ -75,9 +75,9 @@ namespace FRC.NativeLibraryUtilities
             else
             // If we are loading from extraction, extract then load
             {
-                ExtractNativeLibrary(location, extractLocation, typeof(T));
+                ExtractNativeLibrary(location, extractLocation!, typeof(T));
                 LibraryLoader = loader;
-                loader.LoadLibrary(extractLocation);
+                loader.LoadLibrary(extractLocation!);
                 LibraryLocation = extractLocation;
             }
         }
@@ -89,7 +89,7 @@ namespace FRC.NativeLibraryUtilities
         /// <param name="location">The file location. Can be either an embedded resource, or a direct file location</param>
         /// <param name="directLoad">True to load the file directly from disk, otherwise false to extract from embedded</param>
         /// <param name="extractLocation">The location to extract to if the file is embedded. On null, it extracts to a temp file</param>
-        public void LoadNativeLibrary<T>(string location, bool directLoad = false, string extractLocation = null)
+        public void LoadNativeLibrary<T>(string location, bool directLoad = false, string? extractLocation = null)
         {
             if (location == null)
                 throw new ArgumentNullException(nameof(location), "Library location cannot be null");
@@ -133,7 +133,7 @@ namespace FRC.NativeLibraryUtilities
         /// <typeparam name="T">The type containing the native resource, if it is embedded.</typeparam>
         /// <param name="directLoad">True to load the file directly from disk, otherwise false to extract from embedded</param>
         /// <param name="extractLocation">The location to extract to if the file is embedded. On null, it extracts to a temp file</param>
-        public void LoadNativeLibrary<T>(bool directLoad = false, string extractLocation = null)
+        public void LoadNativeLibrary<T>(bool directLoad = false, string? extractLocation = null)
         {
             OsType osType = OsType;
 
@@ -235,7 +235,12 @@ namespace FRC.NativeLibraryUtilities
             LibraryLocation = extractLocation;
         }
 
-        public T LoadNativeInterface<T>() where T : class {
+        /// <summary>
+        /// Load a native interface
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T? LoadNativeInterface<T>() where T : class {
             if (!typeof(T).IsInterface) {
                 throw new InvalidOperationException($"{typeof(T).Name} must be an interface");
             }

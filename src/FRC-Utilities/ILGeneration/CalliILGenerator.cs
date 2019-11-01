@@ -8,10 +8,17 @@ using System.Text;
 
 namespace FRC.ILGeneration
 {
+    /// <summary>
+    /// Generator for generating CallI IL calls
+    /// </summary>
     public class CalliILGenerator : IILGenerator
     {
-        private readonly object[] invokeArgs = new object[4];
+        private readonly object?[] invokeArgs = new object?[4];
         private readonly MethodInfo methodInfo;
+
+        /// <summary>
+        /// Construct a new Calli il generator
+        /// </summary>
         public CalliILGenerator()
         {
             var emitMethod = typeof(ILGenerator).GetMethod(nameof(ILGenerator.EmitCalli), new Type[] { typeof(OpCode), typeof(CallingConvention), typeof(Type), typeof(Type[]) });
@@ -20,7 +27,15 @@ namespace FRC.ILGeneration
             invokeArgs[1] = CallingConvention.Cdecl;
         }
 
-        public unsafe void GenerateMethod(ILGenerator generator, Type returnType, Type[] parameters, IntPtr nativeFp, bool isInstance = false)
+        /// <summary>
+        /// Generate a native calling method
+        /// </summary>
+        /// <param name="generator"></param>
+        /// <param name="returnType"></param>
+        /// <param name="parameters"></param>
+        /// <param name="nativeFp"></param>
+        /// <param name="isInstance"></param>
+        public unsafe void GenerateMethod(ILGenerator generator, Type? returnType, Type[]? parameters, IntPtr nativeFp, bool isInstance = false)
         {
             ILHelpers.VerifyBlittableParameters(returnType, parameters);
             if (isInstance)

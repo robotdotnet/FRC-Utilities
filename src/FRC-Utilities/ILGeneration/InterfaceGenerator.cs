@@ -8,7 +8,7 @@ using FRC.NativeLibraryUtilities;
 
 namespace FRC.ILGeneration
 {
-    internal class InterfaceGenerator<T>
+    internal class InterfaceGenerator<T> where T : class
     {
         private readonly IFunctionPointerLoader functionPointerLoader;
         private readonly IILGenerator ilGenerator;
@@ -19,7 +19,7 @@ namespace FRC.ILGeneration
             this.ilGenerator = ilGenerator;
         }
 
-        public T GenerateImplementation()
+        public T? GenerateImplementation()
         {
             Console.WriteLine("Generating Impl");
             AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(typeof(T).Name + "Asm"), AssemblyBuilderAccess.Run);
@@ -33,7 +33,7 @@ namespace FRC.ILGeneration
             {
                 var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
                 var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Virtual | MethodAttributes.Public, method.ReturnType, parameters);
-                var nativeCallAttribute = method.GetCustomAttribute<NativeCallAtrribute>();
+                var nativeCallAttribute = method.GetCustomAttribute<NativeCallAttribute>();
                 string nativeName = method.Name;
                 if (nativeCallAttribute != null && nativeCallAttribute.NativeName != null)
                 {
@@ -44,7 +44,7 @@ namespace FRC.ILGeneration
 
             var typeInfo = typeBuilder.CreateTypeInfo();
 
-            return (T)typeInfo.GetConstructor(new Type[0]).Invoke(null);
+            return (T?)typeInfo?.GetConstructor(new Type[0]).Invoke(null);
         }
     }
 }

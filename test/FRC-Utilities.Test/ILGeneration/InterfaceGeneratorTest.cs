@@ -43,8 +43,9 @@ namespace FRC.Test.ILGenerations
             var ilGenerator = new CalliILGenerator();
             InterfaceGenerator<I1Func> iGenerator = new InterfaceGenerator<I1Func>(fpLoader, ilGenerator);
             var impl = iGenerator.GenerateImplementation();
+            Assert.NotNull(impl);
             int x = 5;
-            byte r = impl.FirstFunc(&x);
+            byte r = impl!.FirstFunc(&x);
             Assert.Equal(6, x);
             Assert.Equal(2, r);
         }

@@ -7,12 +7,22 @@ namespace FRC.NativeLibraryUtilities
     internal sealed class Utsname
         : IEquatable<Utsname>
     {
-        public string sysname;
-        public string nodename;
-        public string release;
-        public string version;
-        public string machine;
-        public string domainname;
+        private readonly string sysname;
+        private readonly string nodename;
+        private readonly string release;
+        private readonly string version;
+        private readonly string machine;
+        private readonly string domainname;
+
+        public Utsname(string sysname, string nodename, string release, string version, string machine, string domainname)
+        {
+            this.sysname = sysname;
+            this.nodename = nodename;
+            this.release = release;
+            this.version = version;
+            this.machine = machine;
+            this.domainname = domainname;
+        }
 
         public override int GetHashCode()
         {
@@ -33,7 +43,6 @@ namespace FRC.NativeLibraryUtilities
 
         public bool Equals(Utsname value)
         {
-            if (value == null) return false;
             return value.sysname == sysname && value.nodename == nodename &&
                 value.release == release && value.version == version &&
                 value.machine == machine && value.domainname == domainname;
@@ -70,19 +79,18 @@ namespace FRC.NativeLibraryUtilities
 
     internal class Uname
     {
-        private static void CopyUtsname(ref Utsname to, ref _Utsname from)
+        private static void CopyUtsname(out Utsname to, ref _Utsname from)
         {
             try
             {
-                to = new Utsname
-                {
-                    sysname = Marshal.PtrToStringAnsi(from.sysname),
-                    nodename = Marshal.PtrToStringAnsi(from.nodename),
-                    release = Marshal.PtrToStringAnsi(from.release),
-                    version = Marshal.PtrToStringAnsi(from.version),
-                    machine = Marshal.PtrToStringAnsi(from.machine),
-                    domainname = Marshal.PtrToStringAnsi(from.domainname)
-                };
+                to = new Utsname(
+                    Marshal.PtrToStringAnsi(from.sysname),
+                    Marshal.PtrToStringAnsi(from.nodename),
+                    Marshal.PtrToStringAnsi(from.release),
+                    Marshal.PtrToStringAnsi(from.version),
+                    Marshal.PtrToStringAnsi(from.machine),
+                    Marshal.PtrToStringAnsi(from.domainname)
+               );
             }
             finally
             {
@@ -101,14 +109,14 @@ namespace FRC.NativeLibraryUtilities
              EntryPoint = "Mono_Posix_Syscall_uname")]
         private static extern int sys_uname(out _Utsname buf);
 
-        public static int uname(out Utsname buf)
+        public static int uname(out Utsname? buf)
         {
             _Utsname _buf;
             int r = sys_uname(out _buf);
-            buf = new Utsname();
+            buf = null;
             if (r == 0)
             {
-                CopyUtsname(ref buf, ref _buf);
+                CopyUtsname(out buf, ref _buf);
             }
             return r;
         }
