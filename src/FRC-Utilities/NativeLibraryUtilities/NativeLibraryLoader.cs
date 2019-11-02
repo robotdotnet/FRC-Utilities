@@ -181,16 +181,34 @@ namespace FRC.NativeLibraryUtilities
                 throw new InvalidOperationException(
                     "OS type is unknown. Must use the overload to manually load the file");
 
-            ILibraryLoader loader = osType switch
+            ILibraryLoader loader;
+
+            switch (osType)
             {
-                OsType.Windows32 => new WindowsLibraryLoader(),
-                OsType.Windows64 => new WindowsLibraryLoader(),
-                OsType.Linux32 => new LinuxLibraryLoader(),
-                OsType.Linux64 => new LinuxLibraryLoader(),
-                OsType.MacOs32 => new MacOsLibraryLoader(),
-                OsType.MacOs64 => new MacOsLibraryLoader(),
-                _ => new EmbeddedLibraryLoader()
-            };
+                case OsType.Windows32:
+                case OsType.Windows64:
+                    loader = new WindowsLibraryLoader();
+                    libraryName = $"{libraryName}.dll";
+                    break;
+                case OsType.Linux32:
+                case OsType.Linux64:
+                    loader = new LinuxLibraryLoader();
+                    libraryName = $"lib{libraryName}.so";
+                    break;
+                case OsType.MacOs32:
+                case OsType.MacOs64:
+                    loader = new MacOsLibraryLoader();
+                    libraryName = $"lib{libraryName}.dylib";
+                    break;
+                case OsType.LinuxArmhf:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    loader = new EmbeddedLibraryLoader();
+                    libraryName = $"lib{libraryName}.so";
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown OS type?");
+            }
 
             bool wasLoaded = loader.TryLoadLibrary(libraryName);
             if (wasLoaded)
