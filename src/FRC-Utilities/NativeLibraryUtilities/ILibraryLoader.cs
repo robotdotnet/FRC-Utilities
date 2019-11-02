@@ -17,6 +17,14 @@ namespace FRC.NativeLibraryUtilities
         /// </summary>
         /// <param name="filename"></param>
         void LoadLibrary(string filename);
+
+        /// <summary>
+        /// Tires to load library from specified file name
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        bool TryLoadLibrary(string filename);
+
         /// <summary>
         /// Unloads the native library
         /// </summary>

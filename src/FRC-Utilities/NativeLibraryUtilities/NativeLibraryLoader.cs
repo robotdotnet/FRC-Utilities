@@ -169,6 +169,39 @@ namespace FRC.NativeLibraryUtilities
         }
 
         /// <summary>
+        /// Try to load a native library directly from a path
+        /// </summary>
+        /// <param name="libraryName"></param>
+        /// <returns></returns>
+        public bool TryLoadNativeLibraryPath(string libraryName)
+        {
+            OsType osType = OsType;
+
+            if (osType == OsType.None)
+                throw new InvalidOperationException(
+                    "OS type is unknown. Must use the overload to manually load the file");
+
+            ILibraryLoader loader = osType switch
+            {
+                OsType.Windows32 => new WindowsLibraryLoader(),
+                OsType.Windows64 => new WindowsLibraryLoader(),
+                OsType.Linux32 => new LinuxLibraryLoader(),
+                OsType.Linux64 => new LinuxLibraryLoader(),
+                OsType.MacOs32 => new MacOsLibraryLoader(),
+                OsType.MacOs64 => new MacOsLibraryLoader(),
+                _ => new EmbeddedLibraryLoader()
+            };
+
+            bool wasLoaded = loader.TryLoadLibrary(libraryName);
+            if (wasLoaded)
+            {
+                LibraryLoader = loader;
+                LibraryLocation = libraryName;
+            }
+            return wasLoaded;
+        }
+
+        /// <summary>
         /// Loads a native library with a reflected assembly holding the native libraries
         /// </summary>
         /// <param name="assemblyName">The name of the assembly to reflect into and load from</param>
