@@ -21,7 +21,6 @@ namespace FRC.ILGeneration
 
         public T? GenerateImplementation()
         {
-            Console.WriteLine("Generating Impl");
             AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(typeof(T).Name + "Asm"), AssemblyBuilderAccess.Run);
             ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule(typeof(T).Name + "Module");
             TypeBuilder typeBuilder = moduleBuilder.DefineType("Default" + typeof(T).Name);

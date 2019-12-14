@@ -24,7 +24,7 @@ namespace FRC
                 return (UIntPtr)(Buffer.Length - 1);
             }
         }
-        private string m_string;
+        private readonly string m_string;
 
         /// <summary>
         /// Constructs a managed UTF8 string from a C# string

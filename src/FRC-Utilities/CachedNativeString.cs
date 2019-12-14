@@ -19,7 +19,7 @@ namespace FRC
         /// </summary>
         public UIntPtr Length;
 
-        private string m_string;
+        private readonly string m_string;
 
         internal CachedNativeString(string vStr)
         {

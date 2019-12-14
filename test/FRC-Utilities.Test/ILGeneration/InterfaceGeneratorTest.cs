@@ -17,7 +17,7 @@ namespace FRC.Test.ILGenerations
 
         private class MockFPLoader : IFunctionPointerLoader
         {
-            private Dictionary<string, (Delegate, IntPtr)> fpMap = new Dictionary<string, (Delegate, IntPtr)>();
+            private readonly Dictionary<string, (Delegate, IntPtr)> fpMap = new Dictionary<string, (Delegate, IntPtr)>();
 
             public void AddDelegate<T>(string name, T del) where T : Delegate
             {

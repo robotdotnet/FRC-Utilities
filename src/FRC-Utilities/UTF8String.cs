@@ -12,7 +12,7 @@ namespace FRC
     {
         private static readonly ConcurrentDictionary<string, CachedNativeString> s_stringCache = new ConcurrentDictionary<string, CachedNativeString>();
 
-        private static Func<string, CachedNativeString> CacheCreateFunc = (s) => new CachedNativeString(s);
+        private static readonly Func<string, CachedNativeString> CacheCreateFunc = (s) => new CachedNativeString(s);
 
         /// <summary>
         /// Creates a UTF8 string that will be cached, using the already cached string is already created

@@ -48,6 +48,7 @@ namespace FRC.NativeLibraryUtilities
         }
 
         [DllImport("libdl.so.2")]
+#pragma warning disable IDE1006 // Naming Styles
         private static extern IntPtr dlopen(string fileName, int flags);
 
         [DllImport("libdl.so.2")]
@@ -58,5 +59,6 @@ namespace FRC.NativeLibraryUtilities
 
         [DllImport("libdl.so.2")]
         private static extern int dlclose(IntPtr handle);
+#pragma warning restore IDE1006 // Naming Styles
     }
 }

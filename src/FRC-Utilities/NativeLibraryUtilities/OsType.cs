@@ -41,7 +41,7 @@
         /// <summary>
         /// Linux Arm Hard Float (Not Raspbian)
         /// </summary>
-        LinuxArmhf,
+        LinuxAarch64,
         /// <summary>
         /// Linux Raspbian
         /// </summary>

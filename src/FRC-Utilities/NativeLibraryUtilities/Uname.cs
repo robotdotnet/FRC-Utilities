@@ -66,7 +66,9 @@ namespace FRC.NativeLibraryUtilities
     }
 
     [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable IDE1006 // Naming Styles
     internal struct _Utsname
+#pragma warning restore IDE1006 // Naming Styles
     {
         public IntPtr sysname;
         public IntPtr nodename;
@@ -101,6 +103,7 @@ namespace FRC.NativeLibraryUtilities
 
         internal const string MPH = "MonoPosixHelper";
         internal const string LIBC = "libc";
+#pragma warning disable IDE1006 // Naming Styles
 
         [DllImport(LIBC, CallingConvention = CallingConvention.Cdecl)]
         public static extern void free(IntPtr ptr);
@@ -109,10 +112,11 @@ namespace FRC.NativeLibraryUtilities
              EntryPoint = "Mono_Posix_Syscall_uname")]
         private static extern int sys_uname(out _Utsname buf);
 
+
         public static int uname(out Utsname? buf)
+#pragma warning restore IDE1006 // Naming Styles
         {
-            _Utsname _buf;
-            int r = sys_uname(out _buf);
+            int r = sys_uname(out _Utsname _buf);
             buf = null;
             if (r == 0)
             {
