@@ -30,6 +30,22 @@ namespace FRC.NativeLibraryUtilities
             }
         }
 
+        /// <summary>
+        /// Try to load a native library from a path
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        bool ILibraryLoader.TryLoadLibrary(string filename)
+        {
+            IntPtr dl = dlopen(filename, 2);
+            if (dl != IntPtr.Zero)
+            {
+                NativeLibraryHandle = dl;
+                return true;
+            };
+            return false;
+        }
+
         IntPtr IFunctionPointerLoader.GetProcAddress(string name)
         {
             dlerror();

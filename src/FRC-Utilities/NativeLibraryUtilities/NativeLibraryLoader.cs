@@ -190,7 +190,58 @@ namespace FRC.NativeLibraryUtilities
         }
 
         /// <summary>
-        /// Loads a native library with an assembly holding the native libraries
+        /// Try to load a native library directly from a path
+        /// </summary>
+        /// <param name="libraryName"></param>
+        /// <returns></returns>
+        public bool TryLoadNativeLibraryPath(string libraryName)
+        {
+            OsType osType = OsType;
+
+            if (osType == OsType.None)
+                throw new InvalidOperationException(
+                    "OS type is unknown. Must use the overload to manually load the file");
+
+            ILibraryLoader loader;
+
+            switch (osType)
+            {
+                case OsType.Windows32:
+                case OsType.Windows64:
+                    loader = new WindowsLibraryLoader();
+                    libraryName = $"{libraryName}.dll";
+                    break;
+                case OsType.Linux32:
+                case OsType.Linux64:
+                    loader = new LinuxLibraryLoader();
+                    libraryName = $"lib{libraryName}.so";
+                    break;
+                case OsType.MacOs32:
+                case OsType.MacOs64:
+                    loader = new MacOsLibraryLoader();
+                    libraryName = $"lib{libraryName}.dylib";
+                    break;
+                case OsType.LinuxAarch64:
+                case OsType.LinuxRaspbian:
+                case OsType.roboRIO:
+                    loader = new EmbeddedLibraryLoader();
+                    libraryName = $"lib{libraryName}.so";
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown OS type?");
+            }
+
+            bool wasLoaded = loader.TryLoadLibrary(libraryName);
+            if (wasLoaded)
+            {
+                LibraryLoader = loader;
+                LibraryLocation = libraryName;
+            }
+            return wasLoaded;
+        }
+
+        /// <summary>
+        /// Loads a native library with a reflected assembly holding the native libraries
         /// </summary>
         /// <param name="assembly">The assembly to load from</param>
         /// <param name="localLoadOnRio">True to force a local load on the RoboRIO</param>

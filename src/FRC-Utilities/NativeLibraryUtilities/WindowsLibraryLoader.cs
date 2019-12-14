@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using FRC.ILGeneration;
@@ -17,7 +18,29 @@ namespace FRC.NativeLibraryUtilities
         {
             if (!File.Exists(filename))
                 throw new FileNotFoundException("The file requested to be loaded could not be found");
-            NativeLibraryHandle = LoadLibrary(filename);
+            IntPtr dl = LoadLibrary(filename);
+            if (dl != IntPtr.Zero)
+            {
+                NativeLibraryHandle = dl;
+                return;
+            }
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+
+        /// <summary>
+        /// Try to load a native library from a path
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public bool TryLoadLibrary(string filename)
+        {
+            IntPtr dl = LoadLibrary(filename);
+            if (dl != IntPtr.Zero)
+            {
+                NativeLibraryHandle = dl;
+                return true;
+            };
+            return false;
         }
 
         IntPtr IFunctionPointerLoader.GetProcAddress(string name)
@@ -36,7 +59,7 @@ namespace FRC.NativeLibraryUtilities
             FreeLibrary(NativeLibraryHandle);
         }
 
-        [DllImport("kernel32")]
+        [DllImport("kernel32", SetLastError = true)]
         private static extern IntPtr LoadLibrary(string fileName);
 
         [DllImport("kernel32.dll")]
