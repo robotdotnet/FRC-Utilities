@@ -8,7 +8,7 @@ using FRC.NativeLibraryUtilities;
 
 namespace FRC.ILGeneration
 {
-    internal class InterfaceGenerator<T> where T : class
+    internal class InterfaceGenerator
     {
         private readonly IFunctionPointerLoader functionPointerLoader;
         private readonly IILGenerator ilGenerator;
@@ -18,15 +18,20 @@ namespace FRC.ILGeneration
             this.functionPointerLoader = functionPointerLoader;
             this.ilGenerator = ilGenerator;
         }
-
-        public T? GenerateImplementation()
+        
+        public T? GenerateImplementation<T>() where T : class
         {
-            AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(typeof(T).Name + "Asm"), AssemblyBuilderAccess.Run);
-            ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule(typeof(T).Name + "Module");
-            TypeBuilder typeBuilder = moduleBuilder.DefineType("Default" + typeof(T).Name);
-            typeBuilder.AddInterfaceImplementation(typeof(T));
+            return (T?)GenerateImplementation(typeof(T));
+        }
 
-            var methods = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        public object? GenerateImplementation(Type t)
+        {
+            AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(t.Name + "Asm"), AssemblyBuilderAccess.Run);
+            ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule(t.Name + "Module");
+            TypeBuilder typeBuilder = moduleBuilder.DefineType("Default" + t.Name);
+            typeBuilder.AddInterfaceImplementation(t);
+
+            var methods = t.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 
             foreach (var method in methods)
             {
@@ -43,7 +48,7 @@ namespace FRC.ILGeneration
 
             var typeInfo = typeBuilder.CreateTypeInfo();
 
-            return (T?)typeInfo?.GetConstructor(new Type[0]).Invoke(null);
+            return typeInfo?.GetConstructor(new Type[0]).Invoke(null);
         }
     }
 }

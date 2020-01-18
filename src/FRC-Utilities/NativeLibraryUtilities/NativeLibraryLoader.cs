@@ -342,8 +342,26 @@ namespace FRC.NativeLibraryUtilities
             }
 
             var ilGenerator = new CalliILGenerator();
-            var interfaceGenerator = new InterfaceGenerator<T>(LibraryLoader, ilGenerator);
-            return interfaceGenerator.GenerateImplementation();
+            var interfaceGenerator = new InterfaceGenerator(LibraryLoader, ilGenerator);
+            return interfaceGenerator.GenerateImplementation<T>();
+        }
+
+        /// <summary>
+        /// Load a native interface
+        /// </summary>
+        /// <returns></returns>
+        public object? LoadNativeInterface(Type t) {
+            if (!t.IsInterface) {
+                throw new InvalidOperationException($"{t.Name} must be an interface");
+            }
+
+            if (LibraryLoader == null) {
+                throw new InvalidOperationException("A native library is not already loaded");
+            }
+
+            var ilGenerator = new CalliILGenerator();
+            var interfaceGenerator = new InterfaceGenerator(LibraryLoader, ilGenerator);
+            return interfaceGenerator.GenerateImplementation(t);
         }
 
         private void ExtractNativeLibrary(string resourceLocation, string extractLocation, Assembly asm)
